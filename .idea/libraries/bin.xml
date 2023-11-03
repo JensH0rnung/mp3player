@@ -1,0 +1,17 @@
+<component name="libraryTable">
+  <library name="bin">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/bin/mp3playerUtil.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/eibo_simpleminim_new.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/tritonus_aos.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/jsminim.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/mp3spi1.9.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/tritonus_share.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/mp3agic.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/minim.jar!/" />
+      <root url="jar://$PROJECT_DIR$/bin/jl1.0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
