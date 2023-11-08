@@ -1,6 +1,6 @@
 package business_logic.services;
 /*
- Verwaltet Inputs, ruft Methoden des Players auf
+Verwaltet Inputs, ruft Methoden des Players auf
  */
 
 import java.io.*;
