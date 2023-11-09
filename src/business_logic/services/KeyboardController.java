@@ -38,6 +38,9 @@ public class KeyboardController {
 		MP3Player player = new MP3Player();
 		PlaylistManager manager = new PlaylistManager();
 
+		boolean shuffleOn = player.isOnShuffle();
+		boolean repeatOn = player.isOnRepeat();
+
 		Scanner	scanner = new Scanner(System.in);
 		String input;
 		String[] commands;
@@ -56,6 +59,9 @@ public class KeyboardController {
 				case "test":
 					player.test();
 					break;
+				case "p":
+					player.test2();
+					break;
 				case PLAY:
 					/*
 					 * Check for Filename, bspw.
@@ -64,11 +70,10 @@ public class KeyboardController {
 					 */
 					if (commands.length > 1) {
 						player.play(commands[1]);
-						break;
 					} else {
 						player.play();
-						break;
 					}
+					break;
 				case PAUSE:
 					player.pause();
 					break;
@@ -99,30 +104,51 @@ public class KeyboardController {
 					player.skipBack();
 					break;
 				case SHUFFLE:
-					boolean shuffleOn = player.isOnShuffle();
-
 					if (commands.length > 1) {
-						String onoff = commands[1];
+						String onoffInput = commands[1];
 
-						if(onoff.equals(ON) && shuffleOn) {
+						if(onoffInput.equals(ON) && shuffleOn) {
 							System.out.println("Shuffle ist bereits aktiviert");
-						} else if (onoff.equals(ON)) {
-							player.shuffle(true);
-							System.out.println("Shuffle ON");
-						} else if (onoff.equals(OFF) && shuffleOn) {
-							player.shuffle(false);
-							System.out.println("Shuffle OFF");
-						} else if (onoff.equals(OFF)) {
+						} else if (onoffInput.equals(OFF) && !shuffleOn) {
 							System.out.println("Shuffle ist bereits deaktiviert");
+						} else if (onoffInput.equals(ON)) {
+							player.shuffle(true);
+							shuffleOn = true;
+							System.out.println("Shuffle ON");
+						} else if (onoffInput.equals(OFF)) {
+							player.shuffle(false);
+							shuffleOn = false;
+							System.out.println("Shuffle OFF");
+						} else {
+							System.out.println("Bitte 'shuffle on' oder 'shuffle off' eingeben");
 						}
 					} else {
 						System.out.println("Bitte 'shuffle on' oder 'shuffle off' eingeben");
 					}
 					break;
 				case REPEAT:
-					// das gleiche wie bei shuffle
-					break;
+					if (commands.length > 1) {
+						String onoffInput = commands[1];
 
+						if(onoffInput.equals(ON) && repeatOn) {
+							System.out.println("Repeat ist bereits aktiviert");
+						} else if (onoffInput.equals(OFF) && !repeatOn) {
+							System.out.println("Repeat ist bereits deaktiviert");
+						} else if (onoffInput.equals(ON)) {
+							player.repeat(true);
+							repeatOn = true;
+							System.out.println("Repeat ON");
+						} else if (onoffInput.equals(OFF)) {
+							player.repeat(false);
+							repeatOn = false;
+							System.out.println("Repeat OFF");
+						} else {
+							System.out.println("Bitte 'repeat on' oder 'repeat off' eingeben");
+						}
+					} else {
+						System.out.println("Bitte 'repeat on' oder 'repeat off' eingeben");
+					}
+					break;
 				default:
 					System.out.println("Unbekannter Befehl");
 					break;

@@ -30,4 +30,8 @@ public class Song {
         }
 
     }
+
+    String getTitle() {
+        return this.title;
+    }
 }

@@ -11,6 +11,8 @@ import de.hsrm.mi.eibo.simpleplayer.SimpleMinim;
  - ... - spielt eine Playlist ab
  */
 public class MP3Player {
+
+	public static final String song = "./music/Empire_State_Of_Mind.mp3";
 	
 	private SimpleMinim minim;
 	private SimpleAudioPlayer audioPlayer;
@@ -20,11 +22,11 @@ public class MP3Player {
 	private boolean repeat;
 
 	public boolean isOnShuffle() {
-		return shuffle;
+		return this.shuffle;
 	}
 
 	public boolean isOnRepeat() {
-		return repeat;
+		return this.repeat;
 	}
 
 	MP3Player(){
@@ -35,6 +37,27 @@ public class MP3Player {
 		this.shuffle = false;
 		this.repeat = false;
 	}
+
+	void test() {
+		System.out.println("Shuffle - " + this.shuffle);
+		System.out.println("Repeat - " + this.repeat);
+//		System.out.println(audioPlayer.length());
+//		audioPlayer.skip(264178);
+//		System.out.println(this.actPlaylist.getName());
+//		System.out.println(this.actPlaylist.getSongs());
+//		System.out.println(audioPlayer.length());
+	}
+
+	void test2() {
+		if(audioPlayer == null) {
+			audioPlayer = minim.loadMP3File(song);
+			play();
+		}
+		// den anderen Thread stoppen und neuen mit gegebenem Song starten
+		else {
+			System.out.println("Es wird bereits in Song gespielt");
+		}
+	}
 	
 	/**
 	 * 
@@ -44,8 +67,14 @@ public class MP3Player {
 	 * ./01_Bring_Mich_Nach_Hause.mp3
 	 */
 	void play(String fileName) {
-		audioPlayer = minim.loadMP3File(fileName);
-		play();
+		if(audioPlayer == null) {
+			audioPlayer = minim.loadMP3File(fileName);
+			play();
+		}
+		// den anderen Thread stoppen und neuen mit gegebenem Song starten
+		else {
+			System.out.println("Es wird bereits in Song gespielt");
+		}
 	}
 	
 	/**
@@ -63,10 +92,6 @@ public class MP3Player {
 	
 	void pause() {
 		audioPlayer.pause();
-	}
-
-	void test() {
-		System.out.println(this.actPlaylist.getName());
 	}
 
 	void volume(float volume) {
@@ -87,7 +112,7 @@ public class MP3Player {
 		 nächsten Song aus Playlist wählen
 		 Shuffle berücksichtigen
 		 */
-		System.out.println(actPlaylist.getSongs());;
+		System.out.println(actPlaylist.getSongs());
 
 		// int muss größer sein, als length
 //		int songLength = audioPlayer.length();
@@ -101,5 +126,11 @@ public class MP3Player {
 	void repeat(boolean on){
 //		this.repeat = !this.repeat; // smarter Weg nicht if-else zu verwenden
 		this.repeat = on;
+//		if(this.repeat && !audioPlayer.isLooping()) {
+//			audioPlayer.loop();
+//		}
+//		} else if(this.repeat && audioPlayer.isLooping()) {
+//
+//		}
 	}
 }
