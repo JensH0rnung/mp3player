@@ -33,7 +33,7 @@ public class MP3Player {
 	MP3Player(){
 		this.minim = new SimpleMinim(true);
 		this.manager = new PlaylistManager();
-		this.actPlaylist = manager.getPlaylist("./music/test.m3u");
+		this.actPlaylist = manager.getPlaylist("./music/default.m3u");
 		// Standardwerte
 		this.shuffle = false;
 		this.repeat = false;
@@ -42,10 +42,10 @@ public class MP3Player {
 	void test() {
 //		System.out.println("Shuffle - " + this.shuffle);
 //		System.out.println("Repeat - " + this.repeat);
-		System.out.println(audioPlayer.length());
-		audioPlayer.skip(264178);
+//		System.out.println(audioPlayer.length());
+//		audioPlayer.skip(264178);
 //		System.out.println(this.actPlaylist.getName());
-//		System.out.println(this.actPlaylist.getSongs());
+		System.out.println(this.actPlaylist.getSongs());
 //		System.out.println(audioPlayer.length());
 	}
 
@@ -99,10 +99,13 @@ public class MP3Player {
 	void volume(float volume) {
 		// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
 		float decibel = (float) (20* Math.log10(volume));
-
 		audioPlayer.setGain(decibel);
 	}
 
+	/**
+	 * denke mal es sollen beim Laden alle Playlisten geladen & initialisiert werden
+	 * dann können diese über den Namen gesetzt werden
+	 */
 	void setActPlaylist(Playlist actPlaylist) {
 		/*
 		 wie setzt man hier ne Playlist, die zuvor erstellt wurde?
