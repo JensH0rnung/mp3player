@@ -21,6 +21,7 @@ public class MP3Player {
 	private boolean shuffle;
 	private boolean repeat;
 
+	// Getter für Shuffle & Repeat
 	public boolean isOnShuffle() {
 		return this.shuffle;
 	}
@@ -39,10 +40,10 @@ public class MP3Player {
 	}
 
 	void test() {
-		System.out.println("Shuffle - " + this.shuffle);
-		System.out.println("Repeat - " + this.repeat);
-//		System.out.println(audioPlayer.length());
-//		audioPlayer.skip(264178);
+//		System.out.println("Shuffle - " + this.shuffle);
+//		System.out.println("Repeat - " + this.repeat);
+		System.out.println(audioPlayer.length());
+		audioPlayer.skip(264178);
 //		System.out.println(this.actPlaylist.getName());
 //		System.out.println(this.actPlaylist.getSongs());
 //		System.out.println(audioPlayer.length());
@@ -52,10 +53,11 @@ public class MP3Player {
 		if(audioPlayer == null) {
 			audioPlayer = minim.loadMP3File(song);
 			play();
+			pause();
 		}
 		// den anderen Thread stoppen und neuen mit gegebenem Song starten
 		else {
-			System.out.println("Es wird bereits in Song gespielt");
+			System.out.println("Es wird bereits ein Song gespielt");
 		}
 	}
 	
@@ -120,17 +122,17 @@ public class MP3Player {
 	}
 	void skipBack(){}
 	void shuffle(boolean on) {
-//		this.shuffle = !this.shuffle; // smarter Weg nicht if-else zu verwenden
         this.shuffle = on;
 	}
-	void repeat(boolean on){
-//		this.repeat = !this.repeat; // smarter Weg nicht if-else zu verwenden
+	void repeat(boolean on) {
 		this.repeat = on;
-//		if(this.repeat && !audioPlayer.isLooping()) {
-//			audioPlayer.loop();
-//		}
-//		} else if(this.repeat && audioPlayer.isLooping()) {
-//
-//		}
+		// Loop starten
+		if(this.repeat && !audioPlayer.isLooping()) {
+			audioPlayer.loop();
+		// Loop beenden
+		} else if(!this.repeat && audioPlayer.isLooping()) {
+			//Loop deaktivieren - Manual -> play()
+			audioPlayer.play();
+		}
 	}
 }
