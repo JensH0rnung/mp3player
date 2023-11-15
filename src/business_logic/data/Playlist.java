@@ -21,6 +21,9 @@ public class Playlist {
     }
 
     public ArrayList<Song> getSongs() {
-        return songs;
+        for(Song song: songs) {
+            System.out.println(song.getTitle());
+        }
+        return this.songs;
     }
 }

@@ -3,6 +3,8 @@ import business_logic.data.Playlist;
 import de.hsrm.mi.eibo.simpleplayer.SimpleAudioPlayer;
 import de.hsrm.mi.eibo.simpleplayer.SimpleMinim;
 
+import java.util.ArrayList;
+
 /**
  Funktionen des Players:
  - play [filename] - verwendet SimpleAudioPlayer zum Abspielen von mp3-Dateien
@@ -11,29 +13,54 @@ import de.hsrm.mi.eibo.simpleplayer.SimpleMinim;
  - ... - spielt eine Playlist ab
  */
 public class MP3Player {
+
+	public static final String song = "./music/Empire_State_Of_Mind.mp3";
 	
 	private SimpleMinim minim;
 	private SimpleAudioPlayer audioPlayer;
 	private PlaylistManager manager;
+	private ArrayList<Playlist> allPlaylists;
 	private Playlist actPlaylist;
 	private boolean shuffle;
 	private boolean repeat;
 
+	// Getter für Shuffle & Repeat
 	public boolean isOnShuffle() {
-		return shuffle;
+		return this.shuffle;
 	}
 
 	public boolean isOnRepeat() {
-		return repeat;
+		return this.repeat;
 	}
 
 	MP3Player(){
 		this.minim = new SimpleMinim(true);
 		this.manager = new PlaylistManager();
-		this.actPlaylist = manager.getPlaylist("./music/test.m3u");
+		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
+		this.actPlaylist = allPlaylists.get(0);
 		// Standardwerte
 		this.shuffle = false;
 		this.repeat = false;
+	}
+
+	void test() {
+		System.out.println("Alle Playlists:");
+		for(Playlist list: allPlaylists) {
+			System.out.println(list.getName());
+		}
+		System.out.println("\nAktuelle Playlist: " + this.actPlaylist.getName());
+	}
+
+	void test2() {
+		if(audioPlayer == null) {
+			audioPlayer = minim.loadMP3File(song);
+			play();
+			pause();
+		}
+		// den anderen Thread stoppen und neuen mit gegebenem Song starten
+		else {
+			System.out.println("Es wird bereits ein Song gespielt");
+		}
 	}
 	
 	/**
@@ -44,8 +71,14 @@ public class MP3Player {
 	 * ./01_Bring_Mich_Nach_Hause.mp3
 	 */
 	void play(String fileName) {
-		audioPlayer = minim.loadMP3File(fileName);
-		play();
+		if(audioPlayer == null) {
+			audioPlayer = minim.loadMP3File(fileName);
+			play();
+		}
+		// den anderen Thread stoppen und neuen mit gegebenem Song starten
+		else {
+			System.out.println("Es wird bereits in Song gespielt");
+		}
 	}
 	
 	/**
@@ -65,17 +98,16 @@ public class MP3Player {
 		audioPlayer.pause();
 	}
 
-	void test() {
-		System.out.println(this.actPlaylist.getName());
-	}
-
 	void volume(float volume) {
 		// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
 		float decibel = (float) (20* Math.log10(volume));
-
 		audioPlayer.setGain(decibel);
 	}
 
+	/**
+	 * denke mal es sollen beim Laden alle Playlisten geladen & initialisiert werden
+	 * dann können diese über den Namen gesetzt werden
+	 */
 	void setActPlaylist(Playlist actPlaylist) {
 		/*
 		 wie setzt man hier ne Playlist, die zuvor erstellt wurde?
@@ -87,7 +119,7 @@ public class MP3Player {
 		 nächsten Song aus Playlist wählen
 		 Shuffle berücksichtigen
 		 */
-		System.out.println(actPlaylist.getSongs());;
+		System.out.println(actPlaylist.getSongs());
 
 		// int muss größer sein, als length
 //		int songLength = audioPlayer.length();
@@ -95,11 +127,17 @@ public class MP3Player {
 	}
 	void skipBack(){}
 	void shuffle(boolean on) {
-//		this.shuffle = !this.shuffle; // smarter Weg nicht if-else zu verwenden
         this.shuffle = on;
 	}
-	void repeat(boolean on){
-//		this.repeat = !this.repeat; // smarter Weg nicht if-else zu verwenden
+	void repeat(boolean on) {
 		this.repeat = on;
+		// Loop starten
+		if(this.repeat && !audioPlayer.isLooping()) {
+			audioPlayer.loop();
+		// Loop beenden
+		} else if(!this.repeat && audioPlayer.isLooping()) {
+			//Loop deaktivieren - Manual -> play()
+			audioPlayer.play();
+		}
 	}
 }

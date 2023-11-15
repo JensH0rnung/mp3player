@@ -7,48 +7,78 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * verwaltet Playlisten
+ * Verwaltet Playlisten
  * Funktionen:
  *  - Playlist laden
  *  - ...
  */
 public class PlaylistManager {
 
+    private ArrayList<Playlist> allPlaylists = new ArrayList<>();
+    private static final String musicDir = "./music";
+    private static final String m3uFile = ".*\\.m3u";
+    private static final String mp3File = ".*\\.mp3";
+    private int playlistCount; // Anzahl Playlists im music-Ordner
+
     /**
-     * Liest .m3u-Datei ein und filtert alle -mp3-Dateien mit Dateipfad heraus,
-     * erzeugt mit diesen Dateipfaden neue Songs,
-     * fügt diese Songs einer ArrayList hinzu,
-     * erstellt neue Playlist mit Namen & Liste an Songs
+     * Hier wird Verzeichnis nach .m3u-Dateien durchsucht (mithilfe der File-Klasse),
+     * für jede .m3u-Datei wird createPlaylist() aufgerufen
+     * -> alle Playlists im music-Ordner werden erstellt
      *
-     * @param filename - .m3u-Datei
-     * @return erstellte Playlist
+     * @return - alle Playlists aus dem music-Ordner
      */
-    public Playlist getPlaylist(String filename) {
+    public ArrayList<Playlist> loadAllPlaylists() {
 
+        File directory = new File(musicDir); // File-Objekt anhand Dateipfad erstellen
+
+        // wenn dir existiert & vom Typ dir ist
+        if(directory.isDirectory() && directory.exists()) {
+            File[] files = directory.listFiles();
+
+            // wenn dir nicht leer ist, suche .m3u-Dateien
+            if(files != null) {
+                for(File file: files) {
+                    if (file.getName().matches(m3uFile)) {
+                        allPlaylists.add(createPlaylist(file));
+                    }
+                }
+            } else {
+                System.out.println("Verzeichnis enthält keine Dateien");
+            }
+        } else {
+            System.out.println("Verzeichnis existiert nicht oder ist kein Verzeichnis");
+        }
+        return this.allPlaylists;
+    }
+
+    /**
+     * Erstellt Playlist aus .m3u-File:
+     *  - .m3u-File wird nach Dateipfaden mit der Endung .m3p durchsucht
+     *  - mit diesen Dateipfaden werden Songs erstellt und der Songliste hinzugefügt
+     *  - Namen der Playlists werden momentan durchnummiert
+     *  - Playlist wird mit Namen und Songliste erstellt
+     *
+     * @param m3uFile - m3u-Datei aus dem music-Ordner
+     */
+    private Playlist createPlaylist(File m3uFile) {
+        playlistCount++;
+        String playlistName = "Playlist" + playlistCount;
         ArrayList<Song> songs = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader("./music/default.m3u"))) {
 
-            String line;
-            String mp3file = ".*\\.mp3"; // Lines, die mit .mp3 enden
-            while((line = reader.readLine()) != null) {
-                if(line.matches(mp3file)) {
-//                    System.out.println("stimmt überein:");
+        try (BufferedReader reader = new BufferedReader(new FileReader(m3uFile))) {
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                if (line.matches(mp3File)) {
                     Song song = new Song(line);
                     songs.add(song);
                 }
-//                System.out.println(line + "\n");
             }
-
         } catch (FileNotFoundException e) {
-            System.out.println("Angegebene Playlist nicht gefunden");
+            System.out.println("Datei wurde nicht gefunden");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        return new Playlist("Playlist1", songs);
-    }
-
-    Playlist getAllSongs() {
-        return null;
+        return new Playlist(playlistName, songs);
     }
 }
