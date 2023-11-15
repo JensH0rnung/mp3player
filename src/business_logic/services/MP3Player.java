@@ -3,6 +3,8 @@ import business_logic.data.Playlist;
 import de.hsrm.mi.eibo.simpleplayer.SimpleAudioPlayer;
 import de.hsrm.mi.eibo.simpleplayer.SimpleMinim;
 
+import java.util.ArrayList;
+
 /**
  Funktionen des Players:
  - play [filename] - verwendet SimpleAudioPlayer zum Abspielen von mp3-Dateien
@@ -17,6 +19,7 @@ public class MP3Player {
 	private SimpleMinim minim;
 	private SimpleAudioPlayer audioPlayer;
 	private PlaylistManager manager;
+	private ArrayList<Playlist> allPlaylists;
 	private Playlist actPlaylist;
 	private boolean shuffle;
 	private boolean repeat;
@@ -33,20 +36,19 @@ public class MP3Player {
 	MP3Player(){
 		this.minim = new SimpleMinim(true);
 		this.manager = new PlaylistManager();
-		this.actPlaylist = manager.getPlaylist("./music/default.m3u");
+		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
+		this.actPlaylist = allPlaylists.get(0);
 		// Standardwerte
 		this.shuffle = false;
 		this.repeat = false;
 	}
 
 	void test() {
-//		System.out.println("Shuffle - " + this.shuffle);
-//		System.out.println("Repeat - " + this.repeat);
-//		System.out.println(audioPlayer.length());
-//		audioPlayer.skip(264178);
-//		System.out.println(this.actPlaylist.getName());
-		System.out.println(this.actPlaylist.getSongs());
-//		System.out.println(audioPlayer.length());
+		System.out.println("Alle Playlists:");
+		for(Playlist list: allPlaylists) {
+			System.out.println(list.getName());
+		}
+		System.out.println("\nAktuelle Playlist: " + this.actPlaylist.getName());
 	}
 
 	void test2() {
