@@ -3,7 +3,6 @@ package business_logic.services;
 Verwaltet Inputs, ruft Methoden des Players auf
  */
 
-import java.io.*;
 import java.util.Scanner;
 
 public class KeyboardController {
@@ -21,20 +20,9 @@ public class KeyboardController {
 	public static final String ON = "on";
 	public static final String OFF = "off";
 
-	public static final String TEST = "test";
-
-	
-	// startet MP3-Player
-	public static void main(String[] args) {
-		start();
-	}
-
 	public static void start() {
 
 		// Test
-
-
-
 		MP3Player player = new MP3Player();
 		PlaylistManager manager = new PlaylistManager();
 
