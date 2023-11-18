@@ -9,12 +9,14 @@ import java.util.ArrayList;
 /**
  * Verwaltet Playlisten
  * Funktionen:
- *  - Playlist laden
+ *  - Playlists erstellen
+ *  - Playlists laden & dem Player übergeben
  *  - ...
  */
 public class PlaylistManager {
 
     private ArrayList<Playlist> allPlaylists = new ArrayList<>();
+    private ArrayList<Song> allSongs = new ArrayList<>();
     private static final String musicDir = "./music";
     private static final String m3uFile = ".*\\.m3u";
     private static final String mp3File = ".*\\.mp3";
@@ -72,6 +74,7 @@ public class PlaylistManager {
                 if (line.matches(mp3File)) {
                     Song song = new Song(line);
                     songs.add(song);
+                    allSongs.add(song); // fügt Song der Playlist & gleichzeitig Liste mit allen Songs hinzu
                 }
             }
         } catch (FileNotFoundException e) {
@@ -80,5 +83,9 @@ public class PlaylistManager {
             throw new RuntimeException(e);
         }
         return new Playlist(playlistName, songs);
+    }
+
+    public ArrayList<Song> getAllSongs (){
+        return this.allSongs;
     }
 }

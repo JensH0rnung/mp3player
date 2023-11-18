@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 /**
  * Playlist verwaltet mehrere Songs
- * Songs der Playlist sind in default.m3u gespeichert
+ * Songs der Playlist sind in .m3u-Datei gespeichert
  */
 public class Playlist {
 
@@ -21,9 +21,6 @@ public class Playlist {
     }
 
     public ArrayList<Song> getSongs() {
-        for(Song song: songs) {
-            System.out.println(song.getTitle());
-        }
         return this.songs;
     }
 }
