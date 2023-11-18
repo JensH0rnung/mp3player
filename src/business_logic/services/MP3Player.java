@@ -18,10 +18,10 @@ public class MP3Player {
 	// Test
 	public static final String song = "./music/Empire_State_Of_Mind.mp3";
 	
-	private final SimpleMinim minim;
+	private SimpleMinim minim;
 	private SimpleAudioPlayer audioPlayer;
-	private final PlaylistManager manager;
-	private final ArrayList<Playlist> allPlaylists;
+	private PlaylistManager manager;
+	private ArrayList<Playlist> allPlaylists;
 	private Playlist actPlaylist;
 	private String actFileName;
 	private boolean shuffle;
