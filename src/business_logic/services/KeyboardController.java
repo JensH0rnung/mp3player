@@ -16,6 +16,8 @@ public class KeyboardController {
 	public static final String SKIPBACK = "skipback";
 	public static final String REPEAT = "repeat";
 	public static final String SHUFFLE = "shuffle";
+	public static final String SET_PLAYLIST = "set";
+
 
 	public static final String ON = "on";
 	public static final String OFF = "off";
@@ -81,10 +83,6 @@ public class KeyboardController {
 						System.out.println("Bitte eine Lautstärke angeben");
 					}
 					break;
-				case QUIT:
-					quit = true;
-					System.out.println("MP3Player wird geschlossen... \n");
-					break;
 				case SKIP:
 					player.skip();
 					break;
@@ -137,6 +135,21 @@ public class KeyboardController {
 						System.out.println("Bitte 'repeat on' oder 'repeat off' eingeben");
 					}
 					break;
+				case SET_PLAYLIST:
+					if(commands.length > 1) {
+						String playlistToPlay = commands[1];
+						player.setPlaylist(playlistToPlay);
+					}
+					else {
+						System.out.println("Bitte den Namen der Playlist angeben");
+					}
+					break;
+				case QUIT:
+					quit = true;
+					System.out.println("MP3Player wird geschlossen ... \n");
+					break;
+
+
 				default:
 					System.out.println("Unbekannter Befehl");
 					break;

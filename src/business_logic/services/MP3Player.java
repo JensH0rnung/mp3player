@@ -26,7 +26,7 @@ public class MP3Player {
 	private String actFileName;
 	private boolean shuffle;
 	private boolean repeat;
-	private ArrayList<Integer> playedSongs; // zur Speicherung der Indizes bereits gespielter Songs
+	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
 
 	// Getter für Shuffle & Repeat
 	public boolean isOnShuffle() {
@@ -42,6 +42,7 @@ public class MP3Player {
 		this.manager = new PlaylistManager();
 		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
 		this.actPlaylist = allPlaylists.get(0);
+		this.playedSongs = new ArrayList<>();
 		// Standardwerte
 		this.shuffle = false;
 		this.repeat = false;
@@ -53,9 +54,11 @@ public class MP3Player {
 			System.out.println(list.getName());
 		}
 		System.out.println("\nAktuelle Playlist: " + this.actPlaylist.getName());
+		System.out.println("\n\n" + manager.getAllSongs());
 	}
 
 	void test2() {
+		playedSongs.add("Erster Song in Playlist");
 		play();
 		pause();
 	}
@@ -63,7 +66,7 @@ public class MP3Player {
 	/**
 	 * Spielt angegeben Song ab
 	 * 
-	 * @param fileName - Name des Songs, der gespielt werden soll
+	 * @param fileName - Filepath des Songs, der abgespielt werden soll
 	 * 
 	 * ./02_Drei_Worte.mp3
 	 * ./01_Bring_Mich_Nach_Hause.mp3
@@ -72,17 +75,15 @@ public class MP3Player {
 		if(audioPlayer == null) {
 			audioPlayer = minim.loadMP3File(fileName);
 			this.actFileName = fileName;
-			play();
+			audioPlayer.play();
+			playedSongs.add(actFileName);
+			System.out.println("Es wird gespielt: " + this.actFileName);
 		}
-		// den anderen Thread stoppen und neuen mit gegebenem Song starten
-//		else {
-//			System.out.println("Es wird bereits in Song gespielt");
-//		}
 	}
 	
 	/**
-	 * Wenn ein Song pausiert wurde, wird Wiedergabe fortgesetzt
-	 * Wenn kein Song ausgewählt war, wird zufälliger Song abgespielt
+	 * Wenn die Wiedergabe pausiert ist, wird Wiedergabe fortgesetzt
+	 * Wenn kein Song gespielt wurde, wird zufälliger Song abgespielt
 	 */
 	void play() {
 		// Wiedergabe fortsetzen
@@ -120,13 +121,24 @@ public class MP3Player {
 	}
 
 	/**
-	 * denke mal es sollen beim Laden alle Playlisten geladen & initialisiert werden
-	 * dann können diese über den Namen gesetzt werden
+	 * Ändert die aktuelle Playlist des Players mithilfe des Namens
+	 *
+	 * @param playlistName - Name der Playlist, die gesetzt werden soll
 	 */
-	void setActPlaylist(Playlist actPlaylist) {
-		/*
-		 wie setzt man hier ne Playlist, die zuvor erstellt wurde?
-		 */
+	void setPlaylist(String playlistName) {
+		int playlistIndex = -1;
+		for(int i = 0; i < allPlaylists.size(); i++) {
+			if(allPlaylists.get(i).getName().equals(playlistName)) {
+				playlistIndex = i;
+				break;
+			}
+		}
+		if(playlistIndex != -1) {
+			this.actPlaylist = allPlaylists.get(playlistIndex);
+		} else {
+			System.out.println("Diese Playlist existiert nicht");
+		}
+		System.out.println("Playlist gesetzt: " + this.actPlaylist.getName());
 	}
 
 	/**
@@ -170,12 +182,21 @@ public class MP3Player {
 	/**
 	 * Springt zum zuletzt abgespielten Song zurück
 	 * ... Alternativ wird zum Songanfang gesprungen (wenn Song länger als x sec läuft)
-	 * ... bei 2x Ausführen (und wenn der Song nicht länger als x sec
+	 * ... Alternativ bei 2x Ausführen (und wenn der Song nicht länger als x sec
 	 * 		läuft) wird zum zuletzt gespieltem Song gesprungen
 	 */
 	void skipBack(){
-		// hier könnte man eine Liste verwenden, der jedes Mal der Index des Songs hinzugefügt wird, wenn er gespielt wird
-		// bei skipback wird diese Liste dann von hinten nach vorne durchgelaufen und die jeweiligen Songs gespielt
+		int playedSongsSize = playedSongs.size();
+
+		if (playedSongsSize > 1) {
+			int lastPlayedIndex = playedSongsSize - 1;
+			String lastPlayedSong = playedSongs.get(lastPlayedIndex - 1);
+			System.out.println("Springe zurück zu: " + lastPlayedSong);
+			play(lastPlayedSong);
+		}
+		else {
+			System.out.println("Vor diesem Song wurden keine Songs abgespielt");
+		}
 	}
 
 	/**

@@ -85,7 +85,16 @@ public class PlaylistManager {
         return new Playlist(playlistName, songs);
     }
 
+    /**
+     * Getter für alle Songs im Verzeichnis
+     * - wird verwendet für zufällige Wiedergabe aller Songs in MP3Player -> play()
+     *
+     * @return - alle Songs im Verzeichnis
+     */
     public ArrayList<Song> getAllSongs (){
+        for(Song song: allSongs) {
+            System.out.println(song.getTitle());
+        }
         return this.allSongs;
     }
 }
