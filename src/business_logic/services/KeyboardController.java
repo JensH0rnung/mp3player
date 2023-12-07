@@ -6,7 +6,7 @@ Verwaltet Inputs, ruft Methoden des Players auf
 import java.util.Scanner;
 
 public class KeyboardController {
-	
+
 	// Eingaben
 	public static final String PLAY = "play";
 	public static final String PAUSE = "pause";
@@ -46,17 +46,17 @@ public class KeyboardController {
 			switch (commands[0].toLowerCase()) {
 
 				// Test
-				case "test":
-					player.test();
-					break;
-				case "p":
-					player.test2();
-					break;
+//				case "test":
+//					player.test();
+//					break;
+//				case "p":
+//					player.test2();
+//					break;
 				case PLAY:
 					/*
 					 * Check for Filename, bspw.
-					 *  ./music/02_Drei_Worte.mp3
-					 *  ./music/01_Bring_Mich_Nach_Hause.mp3
+					 *  ./assets.music1/02_Drei_Worte.mp3
+					 *  ./assets.music1/01_Bring_Mich_Nach_Hause.mp3
 					 */
 					if (commands.length > 1) {
 						player.play(commands[1]);
@@ -98,11 +98,11 @@ public class KeyboardController {
 						} else if (onoffInput.equals(OFF) && !shuffleOn) {
 							System.out.println("Shuffle ist bereits deaktiviert");
 						} else if (onoffInput.equals(ON)) {
-							player.shuffle(true);
+//							player.shuffle(true);
 							shuffleOn = true;
 							System.out.println("Shuffle ON");
 						} else if (onoffInput.equals(OFF)) {
-							player.shuffle(false);
+//							player.shuffle(false);
 							shuffleOn = false;
 							System.out.println("Shuffle OFF");
 						} else {
@@ -121,11 +121,11 @@ public class KeyboardController {
 						} else if (onoffInput.equals(OFF) && !repeatOn) {
 							System.out.println("Repeat ist bereits deaktiviert");
 						} else if (onoffInput.equals(ON)) {
-							player.repeat(true);
+//							player.repeat(true);
 							repeatOn = true;
 							System.out.println("Repeat ON");
 						} else if (onoffInput.equals(OFF)) {
-							player.repeat(false);
+//							player.repeat(false);
 							repeatOn = false;
 							System.out.println("Repeat OFF");
 						} else {

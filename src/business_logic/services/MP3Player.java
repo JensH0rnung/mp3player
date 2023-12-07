@@ -7,16 +7,18 @@ import de.hsrm.mi.eibo.simpleplayer.SimpleMinim;
 import java.util.ArrayList;
 
 /**
- Funktionen des Players:
- - play [filename] - verwendet SimpleAudioPlayer zum Abspielen von mp3-Dateien
- - pause - pausiert aktuelle Wiedergabe
- - volume [0-1] - ändert die WiedergabeLautstärke
- - ... - spielt eine Playlist ab
+ * Funktionen des Players:
+ * 	- play [filename] - verwendet SimpleAudioPlayer zum Abspielen von mp3-Dateien
+ * 	- play - spielt einen zufällig gewählten Song aus allen verfügbaren Songs
+ * 	- pause - pausiert die Wiedergabe
+ * 	- volume [0-1] - ändert die Wiedergabe-Lautstärke (0 -> leise; 1 -> volle Lautstärke)
+ * 	- setPlaylist [playlistName] - setzt die zu spielende Playlist
+ * 	- skip - springt zum nächsten Song (berücksichtigt Shuffle)
+ * 	- skipback - springt zum zuletzt gespielten Song
+ * 	- shuffle [on | off] - beeinflusst die Wahl des nächsten Songs (Reihenfolge der Playlist / zufällige Reihenfolge)
+ *  - repeat [on | off] - spielt, bei Aktivierung, den aktuellen Song in Dauerschleife
  */
 public class MP3Player {
-
-	// Test
-	public static final String song = "./music/Empire_State_Of_Mind.mp3";
 	
 	private SimpleMinim minim;
 	private SimpleAudioPlayer audioPlayer;
@@ -28,16 +30,34 @@ public class MP3Player {
 	private boolean repeat;
 	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
 
-	// Getter für Shuffle & Repeat
+	/**
+	 * Getter, ob der Player gerade etwas abspielt
+	 * @return - true | false
+	 */
+	public boolean isPlaying() {
+		return audioPlayer != null && audioPlayer.isPlaying();
+	}
+
+	/**
+	 * Getter für ShuffleModus
+	 * @return - shuffle on | off
+	 */
 	public boolean isOnShuffle() {
 		return this.shuffle;
 	}
 
+	/**
+	 * Getter für RepeatModus
+	 * @return - repeat on | off
+	 */
 	public boolean isOnRepeat() {
 		return this.repeat;
 	}
 
-	MP3Player(){
+	/**
+	 * Constructor
+	 */
+	public MP3Player(){
 		this.minim = new SimpleMinim(true);
 		this.manager = new PlaylistManager();
 		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
@@ -48,20 +68,23 @@ public class MP3Player {
 		this.repeat = false;
 	}
 
-	void test() {
-		System.out.println("Alle Playlists:");
-		for(Playlist list: allPlaylists) {
-			System.out.println(list.getName());
-		}
-		System.out.println("\nAktuelle Playlist: " + this.actPlaylist.getName());
-		System.out.println("\n\n" + manager.getAllSongs());
-	}
-
-	void test2() {
-		playedSongs.add("Erster Song in Playlist");
-		play();
-		pause();
-	}
+//	void test() {
+//		System.out.println("--- All Playlists in Library ---");
+//		for(Playlist list: allPlaylists) {
+//			System.out.println(list.getName());
+//		}
+//		System.out.println("\nActPlaylist -> " + this.actPlaylist.getName());
+//		System.out.println("\n--- All Songs in Library ---");
+//		for(Song song: manager.getAllSongs()) {
+//			System.out.println(song.getTitle());
+//		}
+//	}
+//
+//	void test2() {
+//		playedSongs.add("Erster Song in Playlist");
+//		play();
+//		pause();
+//	}
 	
 	/**
 	 * Spielt angegeben Song ab
@@ -71,13 +94,12 @@ public class MP3Player {
 	 * ./02_Drei_Worte.mp3
 	 * ./01_Bring_Mich_Nach_Hause.mp3
 	 */
-	void play(String fileName) {
+	public void play(String fileName) {
 		if(audioPlayer == null) {
 			audioPlayer = minim.loadMP3File(fileName);
 			this.actFileName = fileName;
 			audioPlayer.play();
 			playedSongs.add(actFileName);
-			System.out.println("Es wird gespielt: " + this.actFileName);
 		}
 	}
 	
@@ -85,7 +107,7 @@ public class MP3Player {
 	 * Wenn die Wiedergabe pausiert ist, wird Wiedergabe fortgesetzt
 	 * Wenn kein Song gespielt wurde, wird zufälliger Song abgespielt
 	 */
-	void play() {
+	public void play() {
 		// Wiedergabe fortsetzen
 		try {
 			audioPlayer.play();
@@ -106,7 +128,7 @@ public class MP3Player {
 	/**
 	 * Pausiert die Wiedergabe
 	 */
-	void pause() {
+	public void pause() {
 		audioPlayer.pause();
 	}
 
@@ -114,7 +136,7 @@ public class MP3Player {
 	 * Setzt die Lautstärke auf den angegebenen Wert
 	 * @param volume - Lautstärke 0 = muted 1 = volle Lautstärke
 	 */
-	void volume(float volume) {
+	public void volume(float volume) {
 		// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
 		float decibel = (float) (20* Math.log10(volume));
 		audioPlayer.setGain(decibel);
@@ -125,7 +147,7 @@ public class MP3Player {
 	 *
 	 * @param playlistName - Name der Playlist, die gesetzt werden soll
 	 */
-	void setPlaylist(String playlistName) {
+	public void setPlaylist(String playlistName) {
 		int playlistIndex = -1;
 		for(int i = 0; i < allPlaylists.size(); i++) {
 			if(allPlaylists.get(i).getName().equals(playlistName)) {
@@ -147,36 +169,41 @@ public class MP3Player {
 	 * 1. Shuffle on -> nächster Song = zufälliger Index, aber nicht der gleiche wie aktueller
 	 * 2. Shuffle off -> nächster Song = Index des aktuellen Songs + 1
 	 */
-	void skip(){
-		// Index von aktuellem Song suchen
-		int actSongIndex = 0;
-		for (int i = 0; i < actPlaylist.getSongs().size(); i++) {
-			if (actPlaylist.getSongs().get(i).toString().equals(this.actFileName)) {
-				actSongIndex = i;
-				break;
+	public void skip(){
+		System.out.println("Button pressed");
+		if(audioPlayer != null) {
+			System.out.println("akt Wiedergabe");
+			// Index von aktuellem Song suchen
+			int actSongIndex = 0;
+			for (int i = 0; i < actPlaylist.getSongs().size(); i++) {
+				if (actPlaylist.getSongs().get(i).toString().equals(this.actFileName)) {
+					actSongIndex = i;
+					break;
+				}
 			}
+
+			// ans Ende vom aktuellen Song springen
+			int songLength = audioPlayer.length();
+			audioPlayer.skip(songLength);
+
+			String nextSongPath, nextSongName;
+			int nextSongIndex;
+			int playlistLength = actPlaylist.getSongs().size();
+
+			// nächsten Song der Playlist oder zufälligen Song spielen
+			if (this.shuffle) {
+				do {
+					nextSongIndex = (int) (Math.random() * playlistLength);
+				} while (nextSongIndex == actSongIndex);
+			} else {
+				nextSongIndex = actSongIndex + 1;
+			}
+			// Filepath des nächsten Songs suchen & play-Methode übergeben
+			nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
+			nextSongName = actPlaylist.getSongs().get(nextSongIndex).getTitle();
+			System.out.println("Playing next:\t" + nextSongName);
+			play(nextSongPath);
 		}
-
-		// ans Ende vom aktuellen Song springen
-		int songLength = audioPlayer.length();
-		audioPlayer.skip(songLength);
-
-		String nextSong;
-		int nextSongIndex;
-		int playlistLength = actPlaylist.getSongs().size();
-
-		// nächsten Song der Playlist oder zufälligen Song spielen
-		if(this.shuffle) {
-			do {
-				nextSongIndex = (int) (Math.random() * playlistLength);
-			} while(nextSongIndex == actSongIndex);
-        } else {
-			nextSongIndex = actSongIndex + 1;
-        }
-		// Filepath des nächsten Songs suchen & play-Methode übergeben
-		nextSong = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
-		System.out.println("Playing next:\t" + nextSong);
-		play(nextSong);
 	}
 
 	/**
@@ -185,7 +212,7 @@ public class MP3Player {
 	 * ... Alternativ bei 2x Ausführen (und wenn der Song nicht länger als x sec
 	 * 		läuft) wird zum zuletzt gespieltem Song gesprungen
 	 */
-	void skipBack(){
+	public void skipBack(){
 		int playedSongsSize = playedSongs.size();
 
 		if (playedSongsSize > 1) {
@@ -199,31 +226,47 @@ public class MP3Player {
 		}
 	}
 
-	/**
-	 * Aktiviert den Shuffle-Modus des Players
-	 * -> der nächste Song wird zufällig ausgewählt
-	 *
-	 * @param on - shuffle aktiviert / deaktiviert
-	 */
-	void shuffle(boolean on) {
-        this.shuffle = on;
-	}
+//	/**
+//	 * Aktiviert den Shuffle-Modus des Players
+//	 * -> der nächste Song wird zufällig ausgewählt
+//	 *
+//	 * @param on - shuffle aktiviert / deaktiviert
+//	 */
+//	public void oldShuffle(boolean on) {
+//        this.shuffle = on;
+//	}
 
 	/**
-	 * Aktiviert den Repeat-Modus des Players
-	 * -> der gleiche Song wird in Dauerschleife abgespielt
-	 *
-	 * @param on - repeat aktiviert / deaktiviert
+	 * Aktiviert / deaktiviert den Shuffle-Modus des Players
 	 */
-	void repeat(boolean on) {
-		this.repeat = on;
-		// Loop starten
-		if(this.repeat && !audioPlayer.isLooping()) {
-			audioPlayer.loop();
-		// Loop beenden
-		} else if(!this.repeat && audioPlayer.isLooping()) {
-			//Loop deaktivieren - Manual -> play()
-			audioPlayer.play();
-		}
+	public void shuffle() {
+        this.shuffle = !this.shuffle;
+		System.out.println("Shuffle - " + this.shuffle);
+	}
+
+//	/**
+//	 * Aktiviert den Repeat-Modus des Players
+//	 * -> der gleiche Song wird in Dauerschleife abgespielt
+//	 *
+//	 * @param on - repeat aktiviert / deaktiviert
+//	 */
+//	public void oldRepeat(boolean on) {
+//		this.repeat = on;
+//		// Loop starten
+//		if(this.repeat && !audioPlayer.isLooping()) {
+//			audioPlayer.loop();
+//		// Loop beenden
+//		} else if(!this.repeat && audioPlayer.isLooping()) {
+//			//Loop deaktivieren - Manual -> play()
+//			audioPlayer.play();
+//		}
+//	}
+
+	/**
+	 * Aktiviert / deaktiviert den Repeat-Modus des Players
+	 */
+	public void repeat() {
+		this.repeat = !this.repeat;
+		System.out.println("Repeat - " + this.repeat);
 	}
 }

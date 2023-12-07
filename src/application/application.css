@@ -1,0 +1,33 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+
+.icon-button{
+  -fx-min-width: 32;
+  -fx-min-height: 32;
+  -fx-background-color: transparent;
+  -fx-background-repeat: no-repeat no-repeat;
+  -fx-background-size: 28 28;
+  -fx-background-position:center;
+}
+
+#play-button.play {
+	-fx-background-image: url("/assets/icons/player/play-circle-normal.png");
+}
+
+#play-button:hover.play {
+	-fx-background-image: url("/assets/icons/player/play-circle-hover.png");
+}
+
+#play-button.pause {
+  -fx-background-image: url("/assets/icons/player/pause-circle-normal.png");
+}
+
+#play-button:hover.pause {
+  -fx-background-image: url("/assets/icons/player/pause-circle-hover.png");
+}
+
+#control-view {
+	-fx-background-color: grey;
+}
+
+
+

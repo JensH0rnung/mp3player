@@ -17,17 +17,19 @@ public class PlaylistManager {
 
     private ArrayList<Playlist> allPlaylists = new ArrayList<>();
     private ArrayList<Song> allSongs = new ArrayList<>();
-    private static final String musicDir = "./music";
+    private static final String musicDir = "./assets/music";
+    // hier den neuen Pfad adden
+    // Welche Probleme treten auf?
     private static final String m3uFile = ".*\\.m3u";
     private static final String mp3File = ".*\\.mp3";
-    private int playlistCount; // Anzahl Playlists im music-Ordner
+    private int playlistCount; // Anzahl Playlists im assets.music1.music-Ordner
 
     /**
      * Hier wird Verzeichnis nach .m3u-Dateien durchsucht (mithilfe der File-Klasse),
      * für jede .m3u-Datei wird createPlaylist() aufgerufen
-     * -> alle Playlists im music-Ordner werden erstellt
+     * -> alle Playlists im assets.music1.music-Ordner werden erstellt
      *
-     * @return - alle Playlists aus dem music-Ordner
+     * @return - alle Playlists aus dem assets.music1.music-Ordner
      */
     public ArrayList<Playlist> loadAllPlaylists() {
 
@@ -60,7 +62,7 @@ public class PlaylistManager {
      *  - Namen der Playlists werden momentan durchnummiert
      *  - Playlist wird mit Namen und Songliste erstellt
      *
-     * @param m3uFile - m3u-Datei aus dem music-Ordner
+     * @param m3uFile - m3u-Datei aus dem assets.music1.music-Ordner
      */
     private Playlist createPlaylist(File m3uFile) {
         playlistCount++;
@@ -92,9 +94,6 @@ public class PlaylistManager {
      * @return - alle Songs im Verzeichnis
      */
     public ArrayList<Song> getAllSongs (){
-        for(Song song: allSongs) {
-            System.out.println(song.getTitle());
-        }
         return this.allSongs;
     }
 }
