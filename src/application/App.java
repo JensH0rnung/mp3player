@@ -6,8 +6,8 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import presentation.scenes.playlistView.PlaylistView;
-import presentation.ui_components.playerControls.ControlViewController;
+import presentation.scenes.playerView.PlayerViewController;
+import presentation.scenes.playlistView.PlaylistViewController;
 
 import java.util.HashMap;
 
@@ -20,7 +20,6 @@ public class App extends Application {
 
     Pane playerView;
     Pane playlistView;
-    Pane playerControlsView;
 
     MP3Player player;
 
@@ -30,15 +29,14 @@ public class App extends Application {
         player = new MP3Player();
         primaryViews = new HashMap<>();
 
-        ControlViewController controller = new ControlViewController(player);
-
-        playerView = controller.getRoot();
+        // erzeugt beide Views(UI) mit ihren Controllern (Logik)
+        PlayerViewController playerViewController = new PlayerViewController(player);
+        playerView = playerViewController.getRoot();
         primaryViews.put(PrimaryViewName.PlayerView, playerView);
 
-        playlistView = new PlaylistView(player);
+        PlaylistViewController playlistViewController = new PlaylistViewController(player);
+        playlistView = playlistViewController.getRoot();
         primaryViews.put(PrimaryViewName.PlaylistView, playlistView);
-
-        playerControlsView = controller.getRoot(); // Hier wird die ControlsView als Root für die Szene zugewiesen
     }
 
     @Override
@@ -47,7 +45,6 @@ public class App extends Application {
         this.primaryStage = primaryStage;
 
         VBox root = new VBox();
-        root.getChildren().add(playerControlsView); // Hier wird playerControlsView als Root für die Szene verwendet
 
         Scene scene = new Scene(root, 400, 650);
         // Einbindung von .css-Datei

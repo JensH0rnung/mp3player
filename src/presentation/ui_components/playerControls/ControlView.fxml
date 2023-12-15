@@ -5,12 +5,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Font?>
 
-<!--  -->
+<!-- fx:controller="presentation.ui_components.playerControls.ControlViewController -->
 
-<HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-   fx:controller="presentation.ui_components.playerControls.ControlViewController">
+<HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="ShuffleButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Shuffle" />
+      <Button fx:id="ShuffleButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Shuffle" shape="circle"/>
       <Button fx:id="SkipBackButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Back" />
       <Button fx:id="PlayPauseButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Play / Pause">
          <font>

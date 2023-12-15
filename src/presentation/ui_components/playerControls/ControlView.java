@@ -28,6 +28,16 @@ public class ControlView extends HBox {
         skipButton = new Button("Skip");
         repeatButton = new Button("Repeat");
 
+        shuffleButton.setId("shuffle-button");
+        skipBackButton.setId("skip-back-button");
+
+        playButton.setId("play-button");
+        playButton.getStyleClass().add("icon-button");
+        playButton.getStyleClass().add("play");
+
+        skipButton.setId("skip-button");
+        repeatButton.setId("repeat-button");
+
         // Hinzufügen zur HBox (umhüllender Container)
         getChildren().addAll(
                 shuffleButton,
@@ -46,5 +56,6 @@ public class ControlView extends HBox {
         setAlignment(Pos.CENTER);
         setSpacing(10);
         setPadding(new Insets(10));
+        setId("control-view");
     }
 }

@@ -3,7 +3,6 @@ package presentation.ui_components.playerControls;
 import business_logic.services.MP3Player;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 
@@ -14,24 +13,18 @@ import javafx.scene.layout.Pane;
 public class ControlViewController implements EventHandler<ActionEvent> {
 
     ControlView root;
-    @FXML
     Button shuffleButton;
-    @FXML
     Button skipBackButton;
-    @FXML
     Button playButton;
-    @FXML
     Button skipButton;
-    @FXML
     Button repeatButton;
 
     private MP3Player player;
 
     public ControlViewController(MP3Player player){
 
-        if(root == null) {
-            root = new ControlView();
-        }
+        root = new ControlView();
+
         this.player = player;
 
         shuffleButton = root.shuffleButton;
@@ -40,42 +33,61 @@ public class ControlViewController implements EventHandler<ActionEvent> {
         skipButton = root.skipButton;
         repeatButton = root.repeatButton;
 
+//        initializeEventHandler();
     }
 
+//    private void initializeEventHandler() {
+//        shuffleButton.setOnAction(this);
+//        skipBackButton.setOnAction(this);
+//        playButton.setOnAction(this);
+//        skipButton.setOnAction(this);
+//        repeatButton.setOnAction(this);
+//    }
+
     /**
-     * Bestimmt, was passiert, wenn ein Button gedrückt wird
+     * Soll später das Handling für die Controls in allen Views übernehmen
+     * setzen der Style-Klassen funktioniert derzeit allerdings nicht
+     *
      * @param actionEvent - Klick auf Button
      */
     @Override
-    @FXML
     public void handle(ActionEvent actionEvent) {
         Button sourceButton = (Button) actionEvent.getSource();
-        if(sourceButton == shuffleButton) {
-            player.shuffle();
-            if(player.isOnShuffle()) {
-                shuffleButton.setStyle("-fx-background-color: green");
-            } else {
-                shuffleButton.setStyle("-fx-background-color: darkgrey");
-            }
-        } else if(sourceButton == skipBackButton) {
-            player.skipBack();
-        } else if(sourceButton == playButton) {
-            if(player.isPlaying()) {
-                player.pause();
-                updateButtonText(playButton, "Play");
-            } else {
-                player.play();
-                updateButtonText(playButton, "Pause");
-            }
-        } else if(sourceButton == skipButton) {
-            player.skip();
-        } else if(sourceButton == repeatButton) {
-            player.repeat();
-            if(player.isOnRepeat()) {
-                repeatButton.setStyle("-fx-background-color: green");
-            } else {
-                repeatButton.setStyle("-fx-background-color: white");
-            }
+
+        switch (sourceButton.getId()) {
+            case "shuffle-button":
+                System.out.println("Shuffle-cvc");
+                player.shuffle();
+                System.out.println(player.isOnShuffle());
+                if(player.isOnShuffle()) {
+                    shuffleButton.getStyleClass().add("activated");
+                } else {
+                    shuffleButton.getStyleClass().remove("activated");
+                }
+                break;
+            case "skip-back-button":
+                player.skipBack();
+                break;
+            case "play-button":
+                if(player.isPlaying()) {
+                    player.pause();
+                    updateButtonText(playButton, "Play");
+                } else {
+                    player.play();
+                    updateButtonText(playButton, "Pause");
+                }
+                break;
+            case "skip-button":
+                player.skip();
+                break;
+            case "repeat-button":
+                player.repeat();
+                if(player.isOnRepeat()) {
+                    repeatButton.setStyle("-fx-background-color: green");
+                } else {
+                    repeatButton.setStyle("-fx-background-color: white");
+                }
+                break;
         }
     }
 

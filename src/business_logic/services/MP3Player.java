@@ -170,9 +170,7 @@ public class MP3Player {
 	 * 2. Shuffle off -> nächster Song = Index des aktuellen Songs + 1
 	 */
 	public void skip(){
-		System.out.println("Button pressed");
 		if(audioPlayer != null) {
-			System.out.println("akt Wiedergabe");
 			// Index von aktuellem Song suchen
 			int actSongIndex = 0;
 			for (int i = 0; i < actPlaylist.getSongs().size(); i++) {
@@ -241,7 +239,6 @@ public class MP3Player {
 	 */
 	public void shuffle() {
         this.shuffle = !this.shuffle;
-		System.out.println("Shuffle - " + this.shuffle);
 	}
 
 //	/**
@@ -267,6 +264,5 @@ public class MP3Player {
 	 */
 	public void repeat() {
 		this.repeat = !this.repeat;
-		System.out.println("Repeat - " + this.repeat);
 	}
 }
