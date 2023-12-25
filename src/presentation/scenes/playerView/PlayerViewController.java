@@ -5,56 +5,57 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
+import presentation.ui_components.playerControls.ControlViewController;
 
 public class PlayerViewController implements EventHandler<ActionEvent> {
 
-    private PlayerView root;
+    PlayerView root;
     private MP3Player player;
 
-    private Button playerViewButton;
-    private Button playlistViewButton;
+    ControlViewController controlViewController;
 
-    private Button shuffleButton;
-    private Button skipBackButton;
-    private Button playButton;
-    private Button skipButton;
-    private Button repeatButton;
+    Button playerViewButton;
+    Button playlistViewButton;
 
-//    private ControlViewController controlViewController;
+    Button shuffleButton;
+    Button skipBackButton;
+    Button playButton;
+    Button skipButton;
+    Button repeatButton;
 
     public PlayerViewController(MP3Player player) {
 
-        this.player = player;
-
         root = new PlayerView();
-//        controlViewController = new ControlViewController(player);
 
-        playerViewButton = root.viewChangeView.playerViewButton;
-        playlistViewButton = root.viewChangeView.playlistViewButton;
+        this.player = player;
+        this.controlViewController = new ControlViewController(player);
 
-        shuffleButton = root.controlView.shuffleButton;
-        skipBackButton = root.controlView.skipBackButton;
-        playButton = root.controlView.playButton;
-        skipButton = root.controlView.skipButton;
-        repeatButton = root.controlView.repeatButton;
-
-        initialize();
+        initializeButtons();
     }
 
     /**
      * sollte später vom ControlViewController übernommen werden,
      * um redundanten Code zu vermeiden
      */
-    public void initialize() {
+    public void initializeButtons() {
 
-        playerViewButton.setOnAction(this);
-        playlistViewButton.setOnAction(this);
+//        playerViewButton = root.viewChangeView.playerViewButton;
+//        playlistViewButton = root.viewChangeView.playlistViewButton;
 
-        shuffleButton.setOnAction(this);
-        skipBackButton.setOnAction(this);
-        playButton.setOnAction(this);
-        skipButton.setOnAction(this);
-        repeatButton.setOnAction(this);
+//        shuffleButton = controlViewController.shuffleButton;
+//        skipBackButton = controlViewController.skipBackButton;
+//        playButton = controlViewController.playButton;
+//        skipButton = controlViewController.skipButton;
+//        repeatButton = controlViewController.repeatButton;
+
+//        playerViewButton.setOnAction(this);
+//        playlistViewButton.setOnAction(this);
+
+//        shuffleButton.setOnAction(this);
+//        skipBackButton.setOnAction(this);
+//        playButton.setOnAction(this);
+//        skipButton.setOnAction(this);
+//        repeatButton.setOnAction(this);
     }
 
     public void handle(ActionEvent actionEvent) {

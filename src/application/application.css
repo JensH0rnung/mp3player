@@ -4,19 +4,25 @@
     -fx-background-color: linear-gradient(#5F88E8, #5FB4E8);
 }
 
-#player-view {
-
+.user-controls {
+  -fx-alignment: center;
+  -fx-padding: 10;
+  -fx-spacing: 10;
 }
 
-#playlist-view {
-
+#control-buttons {
+	-fx-background-color: rgb(103, 103, 103);
 }
 
-#control-view, #time-control-view {
-	-fx-background-color: grey;
+#time-control {
+  -fx-background-color: grey;
 }
 
-.icon-button{
+.button:hover {
+  -fx-background-color: darkgrey;
+}
+
+.icon-button {
   -fx-min-width: 32;
   -fx-min-height: 32;
   /* -fx-background-color: transparent; */
@@ -24,27 +30,19 @@
   -fx-background-size: 28 28;
   -fx-background-position:center;
 }
-#shuffle-button {
-    border-color: red;
-}
 
 #shuffle-button.activated, #repeat-button.activated {
     -fx-background-color: green;
 }
 
-#play-button.play {
-	-fx-background-image: url("/assets/icons/playButton/play-circle-normal.png");
-}
-
-#play-button:hover.play {
-	-fx-background-image: url("/assets/icons/playButton/play-circle-hover.png");
-	-fx-background-color: black;
+#play-button {
+  /* -fx-background-image: url("assets/icons/playButton/play-circle-normal.png"); */
 }
 
 #play-button.pause {
-  -fx-background-image: url("/assets/icons/playButton/pause-circle-normal.png");
+  /* -fx-background-image: url("/assets/icons/playButton/pause-circle-normal.png"); */
 }
 
 #play-button:hover.pause {
-  -fx-background-image: url("/assets/icons/playButton/pause-circle-hover.png");
+  /* -fx-background-image: url("/assets/icons/playButton/pause-circle-hover.png"); */
 }

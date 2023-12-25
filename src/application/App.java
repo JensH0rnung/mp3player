@@ -4,7 +4,6 @@ import business_logic.services.MP3Player;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import presentation.scenes.playerView.PlayerViewController;
 import presentation.scenes.playlistView.PlaylistViewController;
@@ -16,7 +15,8 @@ import java.util.HashMap;
  */
 public class App extends Application {
     private Stage primaryStage;
-    private HashMap<PrimaryViewName, Pane> primaryViews;
+
+    private HashMap<String, Pane> primaryViews;
 
     Pane playerView;
     Pane playlistView;
@@ -29,30 +29,32 @@ public class App extends Application {
         player = new MP3Player();
         primaryViews = new HashMap<>();
 
-        // erzeugt beide Views(UI) mit ihren Controllern (Logik)
+        /*
+         erzeugt beide Views(UI) mit ihren Controllern (Logik)
+         und fügt diese der HashMap hinzu
+         */
         PlayerViewController playerViewController = new PlayerViewController(player);
         playerView = playerViewController.getRoot();
-        primaryViews.put(PrimaryViewName.PlayerView, playerView);
+        primaryViews.put("PlayerView", playerView);
 
-        PlaylistViewController playlistViewController = new PlaylistViewController(player);
+        PlaylistViewController playlistViewController = new PlaylistViewController(player, primaryStage, primaryViews);
         playlistView = playlistViewController.getRoot();
-        primaryViews.put(PrimaryViewName.PlaylistView, playlistView);
+        primaryViews.put("PlaylistView", playlistView);
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        this.primaryStage = primaryStage;
+        this.primaryStage = primaryStage; // Window
 
-        VBox root = new VBox();
+        // Standard-View
+        Pane root = primaryViews.get("PlaylistView");
 
-        Scene scene = new Scene(root, 400, 650);
+        Scene scene = new Scene(root, 475, 600);
         // Einbindung von .css-Datei
         scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
-        primaryStage.setScene(scene);
 
-        // Standard-View -> PlayerView
-        switchView(PrimaryViewName.PlayerView);
+        primaryStage.setScene(scene);
 
         primaryStage.setTitle("MP3Player");
         primaryStage.show();
@@ -62,18 +64,8 @@ public class App extends Application {
 
     }
 
-    /**
-     * Wechselt zwischen erstellten Views
-     *
-     * @param viewName - View, der angezeigt werden soll
-     */
-    public void switchView(PrimaryViewName viewName) {
-        Scene currentScene = primaryStage.getScene();
-
-        Pane nextView = primaryViews.get(viewName);
-        if (nextView != null) {
-            currentScene.setRoot(nextView);
-        }
+    public Stage getPrimaryStage() {
+        return this.primaryStage;
     }
 
     /**

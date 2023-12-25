@@ -2,24 +2,57 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<!-- fx:controller="presentation.ui_components.playerControls.ControlViewController -->
-
-<HBox alignment="CENTER" prefHeight="60.0" prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox fx:id="controls" alignment="CENTER" stylesheets="@style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button fx:id="ShuffleButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Shuffle" shape="circle"/>
-      <Button fx:id="SkipBackButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Back" />
-      <Button fx:id="PlayPauseButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Play / Pause">
-         <font>
-            <Font size="14.0" />
-         </font>
-      </Button>
-      <Button fx:id="SkipButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Skip" />
-      <Button fx:id="RepeatButton" onAction="#handle" alignment="CENTER" mnemonicParsing="false" text="Repeat" />
+      <HBox fx:id="timeControl" alignment="CENTER" prefHeight="13.0" prefWidth="476.0" spacing="10.0">
+         <children>
+            <Label fx:id="currentTime" text="Label" HBox.hgrow="NEVER">
+               <font>
+                  <Font size="10.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="songProgress" prefHeight="10.0" prefWidth="200.0" progress="0.0" HBox.hgrow="ALWAYS" />
+            <Label fx:id="songLength" text="Label" HBox.hgrow="NEVER">
+               <font>
+                  <Font size="10.0" />
+               </font>
+            </Label>
+         </children>
+         <VBox.margin>
+            <Insets top="5.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox id="player-buttons" fx:id="controlButtons" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="52.0" prefWidth="476.0" spacing="10.0">
+         <children>
+            <Button id="shuffle-button" fx:id="shuffleButton" alignment="CENTER" mnemonicParsing="false" text="Shuffle" HBox.hgrow="NEVER" />
+            <Button id="skipback-button" fx:id="skipBackButton" alignment="CENTER" mnemonicParsing="false" text="Back" HBox.hgrow="NEVER" />
+            <Button id="play-button" fx:id="playButton" alignment="CENTER" mnemonicParsing="false" text="Play" HBox.hgrow="NEVER">
+               <font>
+                  <Font size="14.0" />
+               </font>
+            </Button>
+            <Button id="skip-button" fx:id="skipButton" alignment="CENTER" mnemonicParsing="false" text="Skip" HBox.hgrow="NEVER" />
+            <Button id="repeat-button" fx:id="repeatButton" alignment="CENTER" mnemonicParsing="false" text="Repeat" HBox.hgrow="NEVER" />
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </HBox>
+      <HBox fx:id="volumeControl" alignment="CENTER" prefHeight="9.0" prefWidth="475.0" spacing="5.0">
+         <children>
+            <Button fx:id="muteButton" mnemonicParsing="false" text="Mute" HBox.hgrow="NEVER" />
+            <Slider id="volume-slider" fx:id="volumeSlider" prefHeight="16.0" prefWidth="108.0" HBox.hgrow="NEVER" />
+         </children>
+         <VBox.margin>
+            <Insets bottom="5.0" />
+         </VBox.margin>
+      </HBox>
    </children>
-   <padding>
-      <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-   </padding>
-</HBox>
+</VBox>

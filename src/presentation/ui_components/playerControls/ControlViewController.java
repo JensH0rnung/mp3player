@@ -3,8 +3,14 @@ package presentation.ui_components.playerControls;
 import business_logic.services.MP3Player;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+
+import java.io.IOException;
+
 
 /**
  * Steuerlogik der PlayerControls, Verknüpfung mit FXML / View
@@ -12,31 +18,41 @@ import javafx.scene.layout.Pane;
  */
 public class ControlViewController implements EventHandler<ActionEvent> {
 
-    ControlView root;
-    Button shuffleButton;
-    Button skipBackButton;
-    Button playButton;
-    Button skipButton;
-    Button repeatButton;
-
+    private VBox root;
     private MP3Player player;
 
-    public ControlViewController(MP3Player player){
+    @FXML
+    Button shuffleButton;
+    @FXML
+    Button skipBackButton;
+    @FXML
+    Button playButton;
+    @FXML
+    Button skipButton;
+    @FXML
+    Button repeatButton;
 
-        root = new ControlView();
+    public ControlViewController(MP3Player player) {
 
         this.player = player;
 
-        shuffleButton = root.shuffleButton;
-        skipBackButton = root.skipBackButton;
-        playButton = root.playButton;
-        skipButton = root.skipButton;
-        repeatButton = root.repeatButton;
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("ControlView.fxml"));
+        loader.setController(this);
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-//        initializeEventHandler();
+        // Style setzen über diese Klasse funktioniert iwie net
+        root.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
+
+//        initialize();
     }
 
-//    private void initializeEventHandler() {
+//    private void initialize() {
+//
 //        shuffleButton.setOnAction(this);
 //        skipBackButton.setOnAction(this);
 //        playButton.setOnAction(this);
@@ -56,14 +72,12 @@ public class ControlViewController implements EventHandler<ActionEvent> {
 
         switch (sourceButton.getId()) {
             case "shuffle-button":
-                System.out.println("Shuffle-cvc");
                 player.shuffle();
-                System.out.println(player.isOnShuffle());
-                if(player.isOnShuffle()) {
-                    shuffleButton.getStyleClass().add("activated");
-                } else {
-                    shuffleButton.getStyleClass().remove("activated");
-                }
+//                if(player.isOnShuffle()) {
+//                    shuffleButton.getStyleClass().add("activated");
+//                } else {
+//                    shuffleButton.getStyleClass().remove("activated");
+//                }
                 break;
             case "skip-back-button":
                 player.skipBack();
@@ -71,10 +85,10 @@ public class ControlViewController implements EventHandler<ActionEvent> {
             case "play-button":
                 if(player.isPlaying()) {
                     player.pause();
-                    updateButtonText(playButton, "Play");
+//                    sourceButton.setText("Play");
                 } else {
                     player.play();
-                    updateButtonText(playButton, "Pause");
+//                    sourceButton.setText("Pause");
                 }
                 break;
             case "skip-button":
@@ -89,17 +103,6 @@ public class ControlViewController implements EventHandler<ActionEvent> {
                 }
                 break;
         }
-    }
-
-    /**
-     * Sinnvolle Implementierung?
-     * Ändert das Icon des übergebenenden Buttons
-     *
-     * @param buttonToUpdate - Button, dessen Icon geändert werden soll
-     * @param textToSet - tempText, anstatt Icon, das gesetzt werden soll
-     */
-    public void updateButtonText(Button buttonToUpdate, String textToSet) {
-        buttonToUpdate.setText(textToSet);
     }
 
     public Pane getRoot() {

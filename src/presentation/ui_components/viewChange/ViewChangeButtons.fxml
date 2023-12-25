@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.HBox?>
+
+<HBox fx:id="viewChangeButtons" alignment="TOP_CENTER" prefHeight="39.0" prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Button fx:id="playerViewButton" mnemonicParsing="false" text="Player" HBox.hgrow="NEVER">
+         <HBox.margin>
+            <Insets top="7.0" />
+         </HBox.margin>
+      </Button>
+      <Button fx:id="playlistViewButton" mnemonicParsing="false" text="Playlist" HBox.hgrow="NEVER">
+         <HBox.margin>
+            <Insets top="7.0" />
+         </HBox.margin>
+      </Button>
+   </children>
+</HBox>

@@ -3,49 +3,81 @@ package presentation.scenes.playlistView;
 import business_logic.services.MP3Player;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+import presentation.ui_components.playerControls.ControlViewController;
+import presentation.ui_components.viewChange.ViewChangeController;
+
+import java.io.IOException;
+import java.util.HashMap;
 
 public class PlaylistViewController implements EventHandler<ActionEvent> {
 
-    private PlaylistView root;
+    private BorderPane root;
     private MP3Player player;
+    private Stage primaryStage;
+    private HashMap<String, Pane> primaryViews;
 
-    private Button playerViewButton;
-    private Button playlistViewButton;
+    @FXML
+    Button playerViewButton;
+    @FXML
+    Button playlistViewButton;
+    @FXML
+    Button shuffleButton;
+    @FXML
+    Button skipBackButton;
 
-    private Button shuffleButton;
-    private Button skipBackButton;
-    private Button playButton;
-    private Button skipButton;
-    private Button repeatButton;
+    @FXML
+    Button playButton;
+    @FXML
+    Button skipButton;
+    @FXML
+    Button repeatButton;
 
-//    private ControlViewController controlViewController;
+    @FXML
+    ListView<String> listView;
 
-    public PlaylistViewController(MP3Player player) {
+    ControlViewController controlViewController;
+    ViewChangeController viewChangeController;
+
+    public PlaylistViewController(MP3Player player, Stage primaryStage, HashMap<String, Pane> primaryViews) {
 
         this.player = player;
+        this.primaryStage = primaryStage;
+        this.primaryViews = primaryViews;
 
-        root = new PlaylistView();
-//        controlViewController = new ControlViewController(player);
+        controlViewController = new ControlViewController(player);
+        viewChangeController = new ViewChangeController(player, primaryStage, primaryViews);
 
-        playerViewButton = root.viewChangeView.playerViewButton;
-        playlistViewButton = root.viewChangeView.playlistViewButton;
 
-        shuffleButton = root.controlView.shuffleButton;
-        skipBackButton = root.controlView.skipBackButton;
-        playButton = root.controlView.playButton;
-        skipButton = root.controlView.skipButton;
-        repeatButton = root.controlView.repeatButton;
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("PlaylistView.fxml"));
+        loader.setController(this);
+        try {
+            root = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
+        /*
+         Aufruf könnte wegfallen, wird automatisch vom FXMLLoader aufgerufen
+         Dient hier der besseren Lesbarkeit
+         */
         initialize();
     }
 
     public void initialize() {
 
-        playerViewButton.setOnAction(this);
-        playlistViewButton.setOnAction(this);
+        // Sollte ViewChangeController sein
+        playerViewButton.setOnAction(viewChangeController);
+        playlistViewButton.setOnAction(viewChangeController);
 
+        // Sollte ControlViewController sein
         shuffleButton.setOnAction(this);
         skipBackButton.setOnAction(this);
         playButton.setOnAction(this);
@@ -53,6 +85,12 @@ public class PlaylistViewController implements EventHandler<ActionEvent> {
         repeatButton.setOnAction(this);
     }
 
+    /**
+     * Bestimmt, was bei Drücken der einzelnen Buttons passiert
+     * - sollte ausgelagert werden, dann funktioniert momentan das Styling allerdings nicht
+     *
+     * @param actionEvent - Klick auf Button
+     */
     public void handle(ActionEvent actionEvent) {
         Button sourceButton = (Button) actionEvent.getSource();
 
@@ -77,10 +115,12 @@ public class PlaylistViewController implements EventHandler<ActionEvent> {
             case "play-button":
                 if(player.isPlaying()) {
                     player.pause();
+                    playButton.setText("Play");
                     playButton.getStyleClass().add("play");
                     playButton.getStyleClass().remove("pause");
                 } else {
                     player.play();
+                    playButton.setText("Pause");
                     playButton.getStyleClass().add("pause");
                     playButton.getStyleClass().remove("play");
                 }

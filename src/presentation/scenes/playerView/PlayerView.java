@@ -1,66 +1,55 @@
 package presentation.scenes.playerView;
 
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
-import presentation.ui_components.cover.Cover;
-import presentation.ui_components.playerControls.ControlView;
-import presentation.ui_components.timeControl.TimeControlView;
-import presentation.ui_components.title_artist.Title_Artist;
-import presentation.ui_components.viewChange.ViewChangeView;
+import presentation.ui_components.cover.ImageViewPane;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 
-public class PlayerView extends AnchorPane {
+public class PlayerView extends BorderPane {
 
-    ControlView controlView;
-    ViewChangeView viewChangeView;
-    Cover cover;
+    // Teil-Views
+//    ControlView controlView;
+//    ViewChangeView viewChangeView;
+    ImageView coverView;
 
     VBox title_artist;
     VBox vbox_cover_songData;
-    HBox timeControl;
 
     public PlayerView() {
 
         // View-Wechsel oben & zentriert
-        viewChangeView = new ViewChangeView();
-        AnchorPane.setTopAnchor(viewChangeView, 0.0);
-        AnchorPane.setLeftAnchor(viewChangeView, 0.0);
-        AnchorPane.setRightAnchor(viewChangeView, 0.0);
+//        viewChangeView = new ViewChangeView();
+//        this.setTop(viewChangeView);
 
-        cover = new Cover();
-        title_artist = new Title_Artist();
+        // Cover
+        coverView = new ImageView();
+
+        try {
+            coverView.setImage(new Image(new FileInputStream("assets/coverView/cover2.jpeg")));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        ImageViewPane coverViewPane = new ImageViewPane(coverView);
+        this.setCenter(coverViewPane);
 
         vbox_cover_songData = new VBox();
         vbox_cover_songData.getChildren().addAll(
-                cover,
-                title_artist
+//                coverViewPane,
+//                title_artist
         );
         vbox_cover_songData.setId("playerview-main-vbox");
 
         // VBox im Center der BorderPane
-        AnchorPane.setTopAnchor(vbox_cover_songData, 40.0);
-        AnchorPane.setLeftAnchor(vbox_cover_songData, 10.0);
-        AnchorPane.setRightAnchor(vbox_cover_songData, 10.0);
+        this.setCenter(vbox_cover_songData);
 
         // PlayerControls am unteren Rand & zentriert
-        controlView = new ControlView();
-        AnchorPane.setBottomAnchor(controlView, 0.0);
-        AnchorPane.setLeftAnchor(controlView, 0.0);
-        AnchorPane.setRightAnchor(controlView, 0.0);
-
-        timeControl = new TimeControlView();
-        // getHeight -> 0.0 momentan
-        AnchorPane.setBottomAnchor(timeControl, controlView.getHeight() + 60);
-        AnchorPane.setLeftAnchor(timeControl, 0.0);
-        AnchorPane.setRightAnchor(timeControl, 0.0);
-
-        getChildren().addAll(
-                viewChangeView,
-                vbox_cover_songData,
-                timeControl,
-                controlView
-        );
+//        controlView = new ControlView();
+//        this.setBottom(controlView);
 
 
         setId("player-view");
