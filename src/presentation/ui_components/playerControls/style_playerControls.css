@@ -1,0 +1,7 @@
+#shuffleButton.activated, #repeatButton.activated {
+    -fx-background-color: green;
+}
+
+.button {
+    -fx-background-color: lightblue;
+}

@@ -1,0 +1,6 @@
+/* Style der Buttons überschreiben, bis auf Hover */
+
+Button {
+    -fx-background-color: orange;
+    -fx-text-align: center;
+}

@@ -1,18 +1,19 @@
 package presentation.scenes.playerView;
 
+import application.App;
 import business_logic.services.MP3Player;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import presentation.ui_components.playerControls.ControlViewController;
+import presentation.ui_components.viewChange.ViewChangeController;
 
-public class PlayerViewController implements EventHandler<ActionEvent> {
+public class PlayerViewController {
 
-    PlayerView root;
+    private PlayerView root;
     private MP3Player player;
 
     ControlViewController controlViewController;
+    ViewChangeController viewChangeController;
 
     Button playerViewButton;
     Button playlistViewButton;
@@ -23,12 +24,14 @@ public class PlayerViewController implements EventHandler<ActionEvent> {
     Button skipButton;
     Button repeatButton;
 
-    public PlayerViewController(MP3Player player) {
+    public PlayerViewController(MP3Player player, App app) {
+
+        this.player = player;
 
         root = new PlayerView();
 
-        this.player = player;
         this.controlViewController = new ControlViewController(player);
+        this.viewChangeController = new ViewChangeController(app);
 
         initializeButtons();
     }
@@ -39,70 +42,34 @@ public class PlayerViewController implements EventHandler<ActionEvent> {
      */
     public void initializeButtons() {
 
-//        playerViewButton = root.viewChangeView.playerViewButton;
-//        playlistViewButton = root.viewChangeView.playlistViewButton;
+        playerViewButton = root.playerViewButton;
+        playlistViewButton = root.playlistViewButton;
 
-//        shuffleButton = controlViewController.shuffleButton;
-//        skipBackButton = controlViewController.skipBackButton;
-//        playButton = controlViewController.playButton;
-//        skipButton = controlViewController.skipButton;
-//        repeatButton = controlViewController.repeatButton;
+        shuffleButton = root.shuffleButton;
+        skipBackButton = root.skipBackButton;
+        playButton = root.playButton;
+        skipButton = root.skipButton;
+        repeatButton = root.repeatButton;
 
-//        playerViewButton.setOnAction(this);
-//        playlistViewButton.setOnAction(this);
+        playerViewButton.setOnAction(viewChangeController);
+        playlistViewButton.setOnAction(viewChangeController);
 
-//        shuffleButton.setOnAction(this);
-//        skipBackButton.setOnAction(this);
-//        playButton.setOnAction(this);
-//        skipButton.setOnAction(this);
-//        repeatButton.setOnAction(this);
+        shuffleButton.setOnAction(controlViewController);
+        skipBackButton.setOnAction(controlViewController);
+        playButton.setOnAction(controlViewController);
+        skipButton.setOnAction(controlViewController);
+        repeatButton.setOnAction(controlViewController);
     }
 
-    public void handle(ActionEvent actionEvent) {
-        Button sourceButton = (Button) actionEvent.getSource();
+    /**
+     * Fordert das Cover des aktuellen Songs an und setzt in den PlayerView
+     * Parameter-Übergabe vermutlich sinnvoll
+     */
+//    public Image setCover() {
+//        Image coverImage = new Image("");
 
-        switch (sourceButton.getId()) {
-            case "player-view-button":
-
-                break;
-            case "playlist-view-button":
-
-                break;
-            case "shuffle-button":
-                player.shuffle();
-                if(player.isOnShuffle()) {
-                    shuffleButton.getStyleClass().add("activated");
-                } else {
-                    shuffleButton.getStyleClass().remove("activated");
-                }
-                break;
-            case "skip-back-button":
-                player.skipBack();
-                break;
-            case "play-button":
-                if(player.isPlaying()) {
-                    player.pause();
-                    playButton.getStyleClass().add("play");
-                    playButton.getStyleClass().remove("pause");
-                } else {
-                    player.play();
-                    playButton.getStyleClass().add("pause");
-                    playButton.getStyleClass().remove("play");
-                }
-                break;
-            case "skip-button":
-                player.skip();
-                break;
-            case "repeat-button":
-                player.repeat();
-                if (player.isOnRepeat()) {
-                    repeatButton.getStyleClass().add("activated");
-                } else {
-                    repeatButton.getStyleClass().remove("activated");
-                }
-                break;
-        }
-    }
+//        return coverImage;
+//    }
 
     public Pane getRoot() {
         return root;

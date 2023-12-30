@@ -58,6 +58,7 @@ public class MP3Player {
 	 * Constructor
 	 */
 	public MP3Player(){
+//		this.minim = new SimpleMinim();
 		this.minim = new SimpleMinim(true);
 		this.manager = new PlaylistManager();
 		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
@@ -224,16 +225,6 @@ public class MP3Player {
 		}
 	}
 
-//	/**
-//	 * Aktiviert den Shuffle-Modus des Players
-//	 * -> der nächste Song wird zufällig ausgewählt
-//	 *
-//	 * @param on - shuffle aktiviert / deaktiviert
-//	 */
-//	public void oldShuffle(boolean on) {
-//        this.shuffle = on;
-//	}
-
 	/**
 	 * Aktiviert / deaktiviert den Shuffle-Modus des Players
 	 */
@@ -241,28 +232,25 @@ public class MP3Player {
         this.shuffle = !this.shuffle;
 	}
 
-//	/**
-//	 * Aktiviert den Repeat-Modus des Players
-//	 * -> der gleiche Song wird in Dauerschleife abgespielt
-//	 *
-//	 * @param on - repeat aktiviert / deaktiviert
-//	 */
-//	public void oldRepeat(boolean on) {
-//		this.repeat = on;
-//		// Loop starten
-//		if(this.repeat && !audioPlayer.isLooping()) {
-//			audioPlayer.loop();
-//		// Loop beenden
-//		} else if(!this.repeat && audioPlayer.isLooping()) {
-//			//Loop deaktivieren - Manual -> play()
-//			audioPlayer.play();
-//		}
-//	}
-
 	/**
 	 * Aktiviert / deaktiviert den Repeat-Modus des Players
 	 */
 	public void repeat() {
+
 		this.repeat = !this.repeat;
+		System.out.println("Repeat - " + this.repeat);
+
+		// Loop starten
+		if(audioPlayer != null) {
+			if (this.repeat && !audioPlayer.isLooping()) {
+				audioPlayer.loop();
+				System.out.println("Looping - " + audioPlayer.isLooping());
+				// Loop beenden
+			} else if (!this.repeat && audioPlayer.isLooping()) {
+				//Loop deaktivieren - Manual -> play()
+				audioPlayer.play();
+				System.out.println("Looping - " + audioPlayer.isLooping());
+			}
+		}
 	}
 }

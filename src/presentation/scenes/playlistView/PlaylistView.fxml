@@ -14,31 +14,35 @@
 
 <BorderPane prefHeight="600.0" prefWidth="475.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <top>
-      <HBox fx:id="viewChangeButtons" alignment="TOP_CENTER" prefHeight="39.0" prefWidth="600.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox fx:id="viewChangeButtons" alignment="CENTER" maxHeight="40.0" minHeight="40.0" prefHeight="40.0" prefWidth="600.0" spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <Button fx:id="playerViewButton" mnemonicParsing="false" text="Player" HBox.hgrow="NEVER">
+            <Button fx:id="playerViewButton" alignment="CENTER" maxHeight="40.0" minHeight="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" text="Player" textAlignment="CENTER" HBox.hgrow="NEVER">
                <HBox.margin>
-                  <Insets top="7.0" />
+                  <Insets />
                </HBox.margin>
             </Button>
-            <Button fx:id="playlistViewButton" mnemonicParsing="false" text="Playlist" HBox.hgrow="NEVER">
+            <Button fx:id="playlistViewButton" alignment="CENTER" maxHeight="40.0" minHeight="40.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="100.0" text="Playlist" textAlignment="CENTER" HBox.hgrow="NEVER">
                <HBox.margin>
-                  <Insets top="7.0" />
+                  <Insets />
                </HBox.margin>
             </Button>
          </children>
+         <BorderPane.margin>
+            <Insets bottom="5.0" top="3.0" />
+         </BorderPane.margin>
       </HBox>
    </top>
    <center>
-      <VBox fx:id="cover_SongInfo" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox fx:id="playlist_songInfo" prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
          <children>
             <ListView fx:id="listView" prefHeight="552.0" prefWidth="475.0" VBox.vgrow="ALWAYS">
                <VBox.margin>
-                  <Insets left="10.0" right="10.0" />
-               </VBox.margin></ListView>
-            <VBox fx:id="songInfo" prefHeight="14.0" prefWidth="600.0" spacing="3.0">
+                  <Insets left="20.0" right="20.0" />
+               </VBox.margin>
+            </ListView>
+            <VBox id="songInfo" fx:id="songInfo" prefHeight="14.0" prefWidth="600.0" spacing="3.0">
                <children>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="SongTitel" VBox.vgrow="NEVER">
+                  <Text id="songTitle" fx:id="songTitle" strokeType="OUTSIDE" strokeWidth="0.0" text="SongTitle" VBox.vgrow="NEVER">
                      <font>
                         <Font size="15.0" />
                      </font>
@@ -46,63 +50,63 @@
                         <Insets bottom="2.0" />
                      </VBox.margin>
                   </Text>
-                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Interpret" VBox.vgrow="NEVER">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
+                  <Text id="artist" fx:id="artist" strokeType="OUTSIDE" strokeWidth="0.0" text="Interpret" VBox.vgrow="NEVER">
                   </Text>
                </children>
                <VBox.margin>
-                  <Insets left="10.0" right="10.0" top="5.0" />
+                  <Insets left="20.0" right="10.0" top="5.0" />
                </VBox.margin>
             </VBox>
          </children>
       </VBox>
    </center>
    <bottom>
-      <VBox fx:id="controls" alignment="CENTER" BorderPane.alignment="CENTER">
+      <VBox id="controlView" fx:id="controlView" alignment="CENTER" stylesheets="@../../ui_components/playerControls/style_playerControls.css" BorderPane.alignment="CENTER">
          <children>
-            <HBox fx:id="timeControl" alignment="CENTER" prefHeight="13.0" prefWidth="476.0" spacing="10.0">
+            <HBox fx:id="timeControl" alignment="CENTER" prefHeight="13.0" prefWidth="475.0" spacing="10.0" VBox.vgrow="NEVER">
                <children>
-                  <Label fx:id="currentTime" text="Label" HBox.hgrow="NEVER">
+                  <Label id="currentTimeLabel" fx:id="currentTimeLabel" text="Current_Time" HBox.hgrow="NEVER">
                      <font>
                         <Font size="10.0" />
                      </font>
                   </Label>
-                  <ProgressBar fx:id="songProgress" prefHeight="10.0" prefWidth="200.0" progress="0.0" HBox.hgrow="ALWAYS" />
-                  <Label fx:id="songLength" text="Label" HBox.hgrow="NEVER">
+                  <ProgressBar id="songProgress" fx:id="songProgress" prefHeight="10.0" prefWidth="200.0" HBox.hgrow="ALWAYS" />
+                  <Label id="songLengthLabel" fx:id="songLengthLabel" text="Total_Time" HBox.hgrow="NEVER">
                      <font>
                         <Font size="10.0" />
                      </font>
                   </Label>
                </children>
+               <VBox.margin>
+                  <Insets top="5.0" />
+               </VBox.margin>
             </HBox>
-            <HBox id="player-buttons" fx:id="controlButtons" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="52.0" prefWidth="476.0" spacing="10.0">
+            <HBox id="controlButtons" fx:id="controlButtons" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="52.0" prefWidth="476.0" spacing="10.0" VBox.vgrow="NEVER">
                <children>
-                  <Button id="shuffle-button" fx:id="shuffleButton" alignment="CENTER" mnemonicParsing="false" text="Shuffle" HBox.hgrow="NEVER" />
-                  <Button id="skipback-button" fx:id="skipBackButton" alignment="CENTER" mnemonicParsing="false" text="Back" HBox.hgrow="NEVER" />
-                  <Button id="play-button" fx:id="playButton" alignment="CENTER" mnemonicParsing="false" text="Play" HBox.hgrow="NEVER">
+                  <Button id="shuffleButton" fx:id="shuffleButton" alignment="CENTER" mnemonicParsing="false" text="Shuffle" HBox.hgrow="NEVER" />
+                  <Button id="skipBackButton" fx:id="skipBackButton" alignment="CENTER" mnemonicParsing="false" text="Back" HBox.hgrow="NEVER" />
+                  <Button id="playButton" fx:id="playButton" alignment="CENTER" mnemonicParsing="false" text="Play" HBox.hgrow="NEVER">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Button>
-                  <Button id="skip-button" fx:id="skipButton" alignment="CENTER" mnemonicParsing="false" text="Skip" HBox.hgrow="NEVER" />
-                  <Button id="repeat-button" fx:id="repeatButton" alignment="CENTER" mnemonicParsing="false" text="Repeat" HBox.hgrow="NEVER" />
+                  <Button id="skipButton" fx:id="skipButton" alignment="CENTER" mnemonicParsing="false" text="Skip" HBox.hgrow="NEVER" />
+                  <Button id="repeatButton" fx:id="repeatButton" alignment="CENTER" mnemonicParsing="false" text="Repeat" HBox.hgrow="NEVER" />
                </children>
                <padding>
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </HBox>
-            <HBox fx:id="volumeControl" alignment="CENTER" prefHeight="9.0" prefWidth="475.0" spacing="5.0">
+            <HBox fx:id="volumeControl" alignment="CENTER" prefHeight="9.0" prefWidth="475.0" spacing="5.0" VBox.vgrow="NEVER">
                <children>
-                  <Button fx:id="muteButton" mnemonicParsing="false" text="Mute" HBox.hgrow="NEVER" />
-                  <Slider id="volume-slider" fx:id="volumeSlider" prefHeight="16.0" prefWidth="108.0" HBox.hgrow="NEVER" />
+                  <Button id="muteButton" fx:id="muteButton" mnemonicParsing="false" text="Mute" HBox.hgrow="NEVER" />
+                  <Slider id="volumeSlider" fx:id="volumeSlider" prefHeight="16.0" prefWidth="108.0" HBox.hgrow="NEVER" />
                </children>
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
             </HBox>
          </children>
-         <BorderPane.margin>
-            <Insets bottom="5.0" />
-         </BorderPane.margin>
       </VBox>
    </bottom>
 </BorderPane>

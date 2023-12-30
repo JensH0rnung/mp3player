@@ -1,28 +1,22 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
 
 .primary-views {
-    -fx-background-color: linear-gradient(#5F88E8, #5FB4E8);
+    /* -fx-background-color: linear-gradient(#5F88E8, #5FB4E8); */
 }
 
-.user-controls {
-  -fx-alignment: center;
-  -fx-padding: 10;
-  -fx-spacing: 10;
-}
-
-#control-buttons {
-	-fx-background-color: rgb(103, 103, 103);
-}
-
-#time-control {
-  -fx-background-color: grey;
-}
-
-.button:hover {
+Button:hover {
   -fx-background-color: darkgrey;
 }
 
-.icon-button {
+#songTitle {
+  -fx-font-size: 15;
+}
+
+/* #controlView Button {
+    -fx-background-color: lightblue;
+} */
+
+.iconButton {
   -fx-min-width: 32;
   -fx-min-height: 32;
   /* -fx-background-color: transparent; */
@@ -31,18 +25,14 @@
   -fx-background-position:center;
 }
 
-#shuffle-button.activated, #repeat-button.activated {
-    -fx-background-color: green;
-}
-
-#play-button {
+#playButton {
   /* -fx-background-image: url("assets/icons/playButton/play-circle-normal.png"); */
 }
 
-#play-button.pause {
+#playButton.pause {
   /* -fx-background-image: url("/assets/icons/playButton/pause-circle-normal.png"); */
 }
 
-#play-button:hover.pause {
+#playButton:hover.pause {
   /* -fx-background-image: url("/assets/icons/playButton/pause-circle-hover.png"); */
 }
