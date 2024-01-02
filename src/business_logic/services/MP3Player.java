@@ -28,6 +28,7 @@ public class MP3Player {
 	private String actFileName;
 	private boolean shuffle;
 	private boolean repeat;
+	private boolean muted;
 	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
 
 	/**
@@ -68,24 +69,6 @@ public class MP3Player {
 		this.shuffle = false;
 		this.repeat = false;
 	}
-
-//	void test() {
-//		System.out.println("--- All Playlists in Library ---");
-//		for(Playlist list: allPlaylists) {
-//			System.out.println(list.getName());
-//		}
-//		System.out.println("\nActPlaylist -> " + this.actPlaylist.getName());
-//		System.out.println("\n--- All Songs in Library ---");
-//		for(Song song: manager.getAllSongs()) {
-//			System.out.println(song.getTitle());
-//		}
-//	}
-//
-//	void test2() {
-//		playedSongs.add("Erster Song in Playlist");
-//		play();
-//		pause();
-//	}
 	
 	/**
 	 * Spielt angegeben Song ab
@@ -110,20 +93,24 @@ public class MP3Player {
 	 */
 	public void play() {
 		// Wiedergabe fortsetzen
-		try {
-			audioPlayer.play();
-		// zufälligen Song spielen
-		} catch (NullPointerException e) {
-			String randomSong;
-			int randomSongIndex, countAllSongs;
+		// Text wird nicht richtig gesetzt bei Ablaufen des Songs
+//		new Thread() {
+//			public void run() {
+				try {
+					audioPlayer.play();
+					// zufälligen Song spielen (unabghängig von Playlist)
+				} catch (NullPointerException e) {
+					String randomSong;
+					int randomSongIndex, countAllSongs;
 
-			countAllSongs = manager.getAllSongs().size();
-			randomSongIndex = (int) (Math.random() * countAllSongs);
+					countAllSongs = manager.getAllSongs().size();
+					randomSongIndex = (int) (Math.random() * countAllSongs);
 
-			randomSong = manager.getAllSongs().get(randomSongIndex).getFilePath();
-			play(randomSong);
-			System.out.println("Zufällige Wiedergabe");
-		}
+					randomSong = manager.getAllSongs().get(randomSongIndex).getFilePath();
+					play(randomSong);
+				}
+//			}
+//		}.start();
 	}
 
 	/**
@@ -141,6 +128,28 @@ public class MP3Player {
 		// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
 		float decibel = (float) (20* Math.log10(volume));
 		audioPlayer.setGain(decibel);
+	}
+
+	/**
+	 * Schaltet die Wiedergabe auf Stumm - und wieder auf laut
+	 */
+	public void mute() {
+		if(audioPlayer != null && !audioPlayer.isMuted()) {
+//			System.out.println("mute player");
+			audioPlayer.mute();
+//			this.muted = !this.muted;
+		} else if (audioPlayer != null && audioPlayer.isMuted()) {
+//			System.out.println("unmute player");
+			audioPlayer.unmute();
+//			this.muted = !this.muted;
+		}
+	}
+
+	/**
+	 * Getter für Mute-Zustand
+	 */
+	public boolean isMuted() {
+		return this.muted;
 	}
 
 	/**
@@ -164,6 +173,7 @@ public class MP3Player {
 		System.out.println("Playlist gesetzt: " + this.actPlaylist.getName());
 	}
 
+	// nochmal überdenken, geht bestimmt einfacher
 	/**
 	 * Berechnet nächsten Song, abhöngig vom Shuffle-Modus
 	 *
@@ -238,7 +248,6 @@ public class MP3Player {
 	public void repeat() {
 
 		this.repeat = !this.repeat;
-		System.out.println("Repeat - " + this.repeat);
 
 		// Loop starten
 		if(audioPlayer != null) {
@@ -247,8 +256,8 @@ public class MP3Player {
 				System.out.println("Looping - " + audioPlayer.isLooping());
 				// Loop beenden
 			} else if (!this.repeat && audioPlayer.isLooping()) {
-				//Loop deaktivieren - Manual -> play()
-				audioPlayer.play();
+				// Loop deaktivieren - Wie genau?
+
 				System.out.println("Looping - " + audioPlayer.isLooping());
 			}
 		}

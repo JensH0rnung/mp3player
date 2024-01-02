@@ -43,8 +43,8 @@ public class ControlViewController implements EventHandler<ActionEvent> {
             throw new RuntimeException(e);
         }
 
-        // Style setzen über diese Klasse funktioniert iwie net
-        root.getStylesheets().add(getClass().getResource("style_playerControls.css").toExternalForm());
+        // ggf. hier Stylesheet setzen, das allgemeinen Style überschreibt
+//        root.getStylesheets().add(getClass().getResource("style_playerControls.css").toExternalForm());
     }
 
     /**
@@ -75,6 +75,9 @@ public class ControlViewController implements EventHandler<ActionEvent> {
                 } else {
                     player.play();
                     sourceButton.setText("Pause");
+//                    Platform.runLater(() -> sourceButton.setText("Pause"));
+                    // Starten des Tasks
+//                    playTask(sourceButton);
                 }
                 break;
             case "skipButton":
@@ -88,8 +91,47 @@ public class ControlViewController implements EventHandler<ActionEvent> {
                     sourceButton.getStyleClass().remove("activated");
                 }
                 break;
+            case "muteButton":
+                if (!player.isMuted()) {
+                    System.out.println("mute");
+                    sourceButton.getStyleClass().add("activated");
+                } else {
+                    System.out.println("unmute");
+                    sourceButton.getStyleClass().remove("activated");
+                }
+                player.mute();
+                break;
         }
     }
+
+//    // Methode zur Ausführung der PlayTask
+////    private void playTask(Button playButton) {
+////        Task<Void> task = new Task<Void>() {
+////            @Override
+////            protected Void call() {
+////                player.play();
+////
+//////                while (player.isPlaying()) {
+//////                    try {
+//////                        Thread.sleep(10000);
+//////                    } catch (InterruptedException e) {
+//////                        throw new RuntimeException(e);
+//////                    }
+//////                }
+////                return null;
+////            }
+////        };
+////
+////        task.setOnSucceeded(workerStateEvent -> {
+//////            Platform.runLater(() -> playButton.setText("Play"));
+////            playButton.setText("Play - CVC");
+////
+////
+////            // Füge hier weitere Aktionen hinzu, die nach dem Abspielen ausgeführt werden sollen
+////        });
+////
+////        new Thread(task).start();
+////    }
 
     public Pane getRoot() {
         return root;

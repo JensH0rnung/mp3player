@@ -1,20 +1,17 @@
 /* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
 
-.primary-views {
-    /* -fx-background-color: linear-gradient(#5F88E8, #5FB4E8); */
-}
-
-Button:hover {
-  -fx-background-color: darkgrey;
-}
-
 #songTitle {
   -fx-font-size: 15;
 }
 
-/* #controlView Button {
-    -fx-background-color: lightblue;
-} */
+Button {
+    -fx-background-color: rgb(255, 210, 127);
+    -fx-text-align: center;
+}
+
+Button:hover {
+    -fx-background-color: rgb(234, 193, 116);
+}
 
 .iconButton {
   -fx-min-width: 32;

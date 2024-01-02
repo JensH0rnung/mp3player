@@ -2,14 +2,17 @@ package presentation.scenes.playerView;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Slider;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import presentation.ui_components.cover.ImageViewPane;
+import presentation.ui_components.cover_SongInfo.ImageViewPane;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -49,7 +52,12 @@ public class PlayerView extends BorderPane {
 
     public PlayerView() {
 
-        // FXML-Dateien der SubViews
+        /*
+         FXML-Dateien der SubViews laden - entspricht dem modularen Prinzip
+         Nach meinem Verständnis sollte mind. 1 "Haupt-View" programmatisch erstellt werden, ohne FXML, daher sind
+         hier alle UI_Elemente aufgeführt. Zur besseren Übersicht dienen Methoden.
+         */
+
 //        loader = new FXMLLoader(getClass().getResource("/presentation/ui_components/viewChange/ViewChangeControl.fxml"));
 //        try {
 //            viewChangeView_fxml = loader.load();
@@ -65,13 +73,11 @@ public class PlayerView extends BorderPane {
 //        }
 
 //        setTop(viewChangeView_fxml);
-//        setCenter(cover_SongInfo);
 //        setBottom(controlView_fxml);
 
-
-        viewChangeButtons();
-        cover_SongInfo();
-        controlView();
+        viewChangeButtons = viewChangeButtons();
+        cover_SongInfo = cover_SongInfo();
+        controlView = controlView();
 
         setTop(viewChangeButtons);
         setCenter(cover_SongInfo);
@@ -119,12 +125,12 @@ public class PlayerView extends BorderPane {
         return viewChangeButtons;
     }
 
-    public void cover_SongInfo() {
+    public VBox cover_SongInfo() {
         cover_SongInfo = new VBox();
 
             coverPic = new ImageView();
             try {
-                coverPic.setImage(new Image(new FileInputStream("src/assets/songCover/cover1.jpeg")));
+                coverPic.setImage(new Image(new FileInputStream("src/assets/songCover/dummy_cover.jpeg")));
             } catch (FileNotFoundException e) {
                 System.out.println("Bild nicht gefunden");
             }
@@ -170,6 +176,8 @@ public class PlayerView extends BorderPane {
         );
 
         cover_SongInfo.setId("cover_songInfo");
+
+        return cover_SongInfo;
     }
 
     public VBox controlView() {
@@ -208,7 +216,7 @@ public class PlayerView extends BorderPane {
           currentTimeLabel,
           songProgress,
           songLengthLabel
-        );
+        );                                                       
 
         // ControlButtons
         controlButtons = new HBox();

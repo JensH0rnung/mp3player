@@ -1,7 +1,11 @@
-#shuffleButton.activated, #repeatButton.activated {
+#shuffleButton.activated, #repeatButton.activated, #muteButton.activated {
     -fx-background-color: green;
 }
 
-.button {
-    -fx-background-color: lightblue;
+#currentTimeLabel, #songLengthLabel {
+    -fx-font-size: 10;
+}
+
+#playButton {
+    -fx-font-size: 14;
 }

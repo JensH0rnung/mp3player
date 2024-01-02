@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import javazoom.jl.player.Player;
 import presentation.scenes.playerView.PlayerViewController;
 import presentation.scenes.playlistView.PlaylistViewController;
 
@@ -51,7 +52,10 @@ public class App extends Application {
         Pane root = primaryViews.get("PlayerView");
 
         Scene scene = new Scene(root, 475, 600);
-        // Einbindung von .css-Datei
+        /*
+         Einbindung von .css-Dateien
+         Styling generell - muss überarbeitet werden
+         */
         scene.getStylesheets().addAll(
                 getClass().getResource("application.css").toExternalForm(),
                 getClass().getResource("/presentation/ui_components/viewChange/style_viewChange.css").toExternalForm(),
@@ -87,8 +91,6 @@ public class App extends Application {
     }
 
     /**
-     * Controller für Keyboard-Funktionen
-     * -> wird später entfernt
      * Launch für GUI
      */
     public static void main(String[] args) {

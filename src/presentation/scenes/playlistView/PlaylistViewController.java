@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import presentation.ui_components.playerControls.ControlViewController;
@@ -21,11 +22,11 @@ public class PlaylistViewController {
     Button playerViewButton;
     @FXML
     Button playlistViewButton;
+
     @FXML
     Button shuffleButton;
     @FXML
     Button skipBackButton;
-
     @FXML
     Button playButton;
     @FXML
@@ -36,6 +37,11 @@ public class PlaylistViewController {
     @FXML
     ListView<String> listView;
 
+    @FXML
+    Button muteButton;
+    @FXML
+    Slider volumeSlider;
+
     private ControlViewController controlViewController;
     private ViewChangeController viewChangeController;
 
@@ -44,19 +50,20 @@ public class PlaylistViewController {
         controlViewController = new ControlViewController(player);
         viewChangeController = new ViewChangeController(app);
 
-
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource("PlaylistView.fxml"));
         loader.setController(this);
+
         try {
             root = loader.load();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         /*
-         Aufruf könnte wegfallen, wird automatisch vom FXMLLoader aufgerufen
-         Dient hier der besseren Lesbarkeit
+         könnte wegfallen, wird automatisch vom FXMLLoader aufgerufen,
+         dient hier der besseren Lesbarkeit
          */
         initialize();
     }
@@ -79,6 +86,11 @@ public class PlaylistViewController {
                 "Song 1",
                 "Song 2",
                 "Song 3"
+        );
+
+        muteButton.setOnAction(controlViewController);
+        volumeSlider.valueProperty().addListener(
+                (observableValue, oldValue, newValue) -> System.out.println(newValue)
         );
     }
 

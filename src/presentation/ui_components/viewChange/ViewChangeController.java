@@ -3,6 +3,7 @@ package presentation.ui_components.viewChange;
 import application.App;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -39,7 +40,7 @@ public class ViewChangeController implements EventHandler<ActionEvent> {
      * Ruft die switchView() der App-Klasse auf, um den View zu wechseln
      * @param actionEvent - Klick auf Button
      */
-    @Override
+    @FXML
     public void handle(ActionEvent actionEvent) {
         Button sourceButton = (Button) actionEvent.getSource();
 
