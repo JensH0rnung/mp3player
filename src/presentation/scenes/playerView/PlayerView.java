@@ -20,6 +20,8 @@ import java.io.FileNotFoundException;
 
 public class PlayerView extends BorderPane {
 
+    private Image defaultCover;
+
     // ViewChangeControls
     HBox viewChangeButtons;
         Button playerViewButton;
@@ -30,14 +32,14 @@ public class PlayerView extends BorderPane {
         ImageView coverPic;
         ImageViewPane coverView;
         VBox songInfo;
-            Label songTitle;
-            Label artist;
+            Label songTitleLabel;
+            Label artistLabel;
 
     // ControlView
     VBox controlView;
         HBox timeControl;
             Label currentTimeLabel;
-            ProgressBar songProgress;
+            ProgressBar songProgressBar;
             Label songLengthLabel;
         HBox controlButtons;
             Button shuffleButton;
@@ -74,6 +76,12 @@ public class PlayerView extends BorderPane {
 
 //        setTop(viewChangeView_fxml);
 //        setBottom(controlView_fxml);
+
+        try {
+            defaultCover = new Image(new FileInputStream("src/assets/songCover/dummy_cover.jpeg"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
 
         viewChangeButtons = viewChangeButtons();
         cover_SongInfo = cover_SongInfo();
@@ -129,20 +137,16 @@ public class PlayerView extends BorderPane {
         cover_SongInfo = new VBox();
 
             coverPic = new ImageView();
-            try {
-                coverPic.setImage(new Image(new FileInputStream("src/assets/songCover/dummy_cover.jpeg")));
-            } catch (FileNotFoundException e) {
-                System.out.println("Bild nicht gefunden");
-            }
+            coverPic.setImage(defaultCover);
             coverView = new ImageViewPane(coverPic);
 
             songInfo = new VBox();
-                songTitle = new Label("SongTitle");
-                artist = new Label("Interpret");
+                songTitleLabel = new Label("SongTitle");
+                artistLabel = new Label("Interpret");
 
             songInfo.getChildren().addAll(
-                    songTitle,
-                    artist
+                    songTitleLabel,
+                    artistLabel
             );
 
         cover_SongInfo.setPrefHeight(200);
@@ -157,18 +161,18 @@ public class PlayerView extends BorderPane {
         songInfo.setPrefWidth(600);
         songInfo.setSpacing(3);
 
-        VBox.setMargin(songInfo, new Insets(5, 10, 0, 20));
+        VBox.setMargin(songInfo, new Insets(5, 10, 2, 20));
 
-        VBox.setMargin(songTitle, new Insets(0, 0, 2, 0));
+        VBox.setMargin(songTitleLabel, new Insets(0, 0, 2, 0));
 
         VBox.setVgrow(coverView, Priority.ALWAYS);
-        VBox.setVgrow(songTitle, Priority.NEVER);
-        VBox.setVgrow(artist, Priority.NEVER);
+        VBox.setVgrow(songTitleLabel, Priority.NEVER);
+        VBox.setVgrow(artistLabel, Priority.NEVER);
 
         coverView.setId("coverView");
         songInfo.setId("songInfo");
-        songTitle.setId("songTitle");
-        artist.setId("artist");
+        songTitleLabel.setId("songTitle");
+        artistLabel.setId("artist");
 
         cover_SongInfo.getChildren().addAll(
                 coverView,
@@ -188,9 +192,9 @@ public class PlayerView extends BorderPane {
 
         // TimeControl
         timeControl = new HBox();
-            currentTimeLabel = new Label("Current_Time");
-            songProgress = new ProgressBar();
-            songLengthLabel = new Label("Total_Time");
+            currentTimeLabel = new Label("00:00");
+            songProgressBar = new ProgressBar();
+            songLengthLabel = new Label("00:00");
 
         timeControl.setAlignment(Pos.CENTER);
         timeControl.setPrefHeight(13);
@@ -201,21 +205,24 @@ public class PlayerView extends BorderPane {
 
         VBox.setVgrow(timeControl, Priority.NEVER);
 
-        songProgress.setPrefHeight(10);
-        songProgress.setPrefWidth(200);
+        songProgressBar.setPrefHeight(10);
+        songProgressBar.setPrefWidth(200);
+        songProgressBar.setProgress(0.5);
+
+        songProgressBar.getStyleClass().add("songProgressBar");
 
         HBox.setHgrow(currentTimeLabel, Priority.NEVER);
-        HBox.setHgrow(songProgress, Priority.ALWAYS);
+        HBox.setHgrow(songProgressBar, Priority.ALWAYS);
         HBox.setHgrow(songLengthLabel, Priority.NEVER);
 
         currentTimeLabel.setId("currentTimeLabel");
-        songProgress.setId("songProgress");
+        songProgressBar.setId("songProgressBar");
         songLengthLabel.setId("songLengthLabel");
 
         timeControl.getChildren().addAll(
-          currentTimeLabel,
-          songProgress,
-          songLengthLabel
+            currentTimeLabel,
+            songProgressBar,
+            songLengthLabel
         );                                                       
 
         // ControlButtons
@@ -271,6 +278,7 @@ public class PlayerView extends BorderPane {
 
         volumeSlider.setPrefHeight(16);
         volumeSlider.setPrefWidth(108);
+        volumeSlider.setValue(100);
 
         HBox.setHgrow(muteButton, Priority.NEVER);
         HBox.setHgrow(volumeSlider, Priority.NEVER);

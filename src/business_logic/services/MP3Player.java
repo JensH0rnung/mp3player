@@ -1,8 +1,10 @@
 package business_logic.services;
 
 import business_logic.data.Playlist;
+import business_logic.data.Song;
 import de.hsrm.mi.eibo.simpleplayer.SimpleAudioPlayer;
 import de.hsrm.mi.eibo.simpleplayer.SimpleMinim;
+import javafx.beans.property.*;
 
 import java.util.ArrayList;
 
@@ -19,7 +21,7 @@ import java.util.ArrayList;
  *  - repeat [on | off] - spielt, bei Aktivierung, den aktuellen Song in Dauerschleife
  */
 public class MP3Player {
-	
+
 	private SimpleMinim minim;
 	private SimpleAudioPlayer audioPlayer;
 	private PlaylistManager manager;
@@ -30,6 +32,50 @@ public class MP3Player {
 	private boolean repeat;
 	private boolean muted;
 	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
+
+	private ObjectProperty<Song> currentSong = new SimpleObjectProperty<>();
+	private IntegerProperty currentTime = new SimpleIntegerProperty();
+	private DoubleProperty currentVolume = new SimpleDoubleProperty();
+
+	/**
+	 * Constructor
+	 */
+	public MP3Player(){
+//		this.minim = new SimpleMinim();
+		this.minim = new SimpleMinim(true);
+		this.manager = new PlaylistManager();
+		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
+		this.actPlaylist = allPlaylists.get(0);
+		this.playedSongs = new ArrayList<>();
+		// Standardwerte
+		this.shuffle = false;
+		this.repeat = false;
+		this.muted = false;
+	}
+
+	/**
+	 * Getter für aktuelles Song-Objekt
+	 * @return - Song als Property-Objekt
+	 */
+	public ObjectProperty<Song> currentSongProperty() {
+		return currentSong;
+	}
+
+	/**
+	 * Getter für die aktuelle Wiedergabezeit
+	 * @return - Zeit in s
+	 */
+	public IntegerProperty currentTimeProperty() {
+		return currentTime;
+	}
+
+	/**
+	 * Getter für die aktuelle Lautstärke
+	 * @return -Lautstärke als Property-Objekt
+	 */
+	public DoubleProperty currentVolumeProperty() {
+		return currentVolume;
+	}
 
 	/**
 	 * Getter, ob der Player gerade etwas abspielt
@@ -56,25 +102,10 @@ public class MP3Player {
 	}
 
 	/**
-	 * Constructor
-	 */
-	public MP3Player(){
-//		this.minim = new SimpleMinim();
-		this.minim = new SimpleMinim(true);
-		this.manager = new PlaylistManager();
-		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
-		this.actPlaylist = allPlaylists.get(0);
-		this.playedSongs = new ArrayList<>();
-		// Standardwerte
-		this.shuffle = false;
-		this.repeat = false;
-	}
-	
-	/**
 	 * Spielt angegeben Song ab
-	 * 
+	 *
 	 * @param fileName - Filepath des Songs, der abgespielt werden soll
-	 * 
+	 *
 	 * ./02_Drei_Worte.mp3
 	 * ./01_Bring_Mich_Nach_Hause.mp3
 	 */
@@ -86,7 +117,7 @@ public class MP3Player {
 			playedSongs.add(actFileName);
 		}
 	}
-	
+
 	/**
 	 * Wenn die Wiedergabe pausiert ist, wird Wiedergabe fortgesetzt
 	 * Wenn kein Song gespielt wurde, wird zufälliger Song abgespielt
@@ -94,9 +125,12 @@ public class MP3Player {
 	public void play() {
 		// Wiedergabe fortsetzen
 		// Text wird nicht richtig gesetzt bei Ablaufen des Songs
-//		new Thread() {
-//			public void run() {
+		new Thread() {
+			public void run() {
 				try {
+					System.out.println(currentVolumeProperty().get());
+					currentVolumeProperty().set(audioPlayer.getGain());
+					System.out.println(currentVolumeProperty().get());
 					audioPlayer.play();
 					// zufälligen Song spielen (unabghängig von Playlist)
 				} catch (NullPointerException e) {
@@ -107,10 +141,26 @@ public class MP3Player {
 					randomSongIndex = (int) (Math.random() * countAllSongs);
 
 					randomSong = manager.getAllSongs().get(randomSongIndex).getFilePath();
+					// setzt zufällig gewählten Song
+					currentSong.set(new Song(randomSong));
+					// spielt zufällig gewählten Song
 					play(randomSong);
 				}
-//			}
-//		}.start();
+
+				// Zählt die Dauer der Wiedergabe jede Sekunde hoch
+				while(isPlaying()) {
+
+					System.out.println(currentVolumeProperty().get());
+					System.out.println(audioPlayer.getGain());
+					currentTime.setValue(currentTime.getValue() + 1);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}.start();
 	}
 
 	/**
@@ -124,10 +174,13 @@ public class MP3Player {
 	 * Setzt die Lautstärke auf den angegebenen Wert
 	 * @param volume - Lautstärke 0 = muted 1 = volle Lautstärke
 	 */
-	public void volume(float volume) {
-		// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
-		float decibel = (float) (20* Math.log10(volume));
-		audioPlayer.setGain(decibel);
+	public void setVolume(float volume) {
+		if(audioPlayer != null) {
+			// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
+			float decibel = (float) (20 * Math.log10(volume));
+			this.currentVolume.set(decibel);
+			audioPlayer.setGain(decibel);
+		}
 	}
 
 	/**
@@ -208,10 +261,10 @@ public class MP3Player {
 				nextSongIndex = actSongIndex + 1;
 			}
 			// Filepath des nächsten Songs suchen & play-Methode übergeben
-			nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
-			nextSongName = actPlaylist.getSongs().get(nextSongIndex).getTitle();
-			System.out.println("Playing next:\t" + nextSongName);
-			play(nextSongPath);
+//			nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
+//			nextSongName = actPlaylist.getSongs().get(nextSongIndex).getTitle();
+//			System.out.println("Playing next:\t" + nextSongName);
+//			play(nextSongPath);
 		}
 	}
 
@@ -239,7 +292,7 @@ public class MP3Player {
 	 * Aktiviert / deaktiviert den Shuffle-Modus des Players
 	 */
 	public void shuffle() {
-        this.shuffle = !this.shuffle;
+		this.shuffle = !this.shuffle;
 	}
 
 	/**
