@@ -3,15 +3,16 @@ package presentation.scenes.playerView;
 import application.App;
 import business_logic.services.MP3Player;
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
+import javafx.beans.property.Property;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import presentation.ui_components.cover_SongInfo.ImageViewPane;
 import presentation.ui_components.playerControls.ControlViewController;
 import presentation.ui_components.viewChange.ViewChangeController;
 
@@ -35,13 +36,13 @@ public class PlayerViewController {
     ProgressBar songProgressBar;
     Label songLengthLabel;
 
-    Button shuffleButton;
+    ToggleButton shuffleButton;
     Button skipBackButton;
     Button playButton;
     Button skipButton;
-    Button repeatButton;
+    ToggleButton repeatButton;
 
-    Button muteButton;
+    ToggleButton muteButton;
     Slider volumeSlider;
 
     public PlayerViewController(MP3Player player, App app) {
@@ -131,24 +132,9 @@ public class PlayerViewController {
                 (observableValue, oldValue, newValue) -> {
                     float volume;
                     volume = newValue.floatValue() / 100;
-                    System.out.println(volume);
                     player.setVolume(volume);
                 }
         );
-
-//        playButton.setOnAction(event -> {
-//            playButton.setText("Pause - PVC");
-//            Task<Void> task = new Task<Void>() {
-//                @Override
-//                protected Void call() {
-//                    player.play();
-//                    return null;
-//                }
-//            };
-//            task.setOnSucceeded(event1 -> playButton.setText("Play - PVC"));
-//
-//            new Thread(task).start();
-//        });
 
     }
 

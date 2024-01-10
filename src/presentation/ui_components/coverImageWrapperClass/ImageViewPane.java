@@ -1,4 +1,4 @@
-package presentation.ui_components.cover_SongInfo;
+package presentation.ui_components.coverImageWrapperClass;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

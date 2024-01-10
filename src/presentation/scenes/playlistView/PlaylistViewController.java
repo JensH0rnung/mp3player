@@ -1,25 +1,30 @@
 package presentation.scenes.playlistView;
 
 import application.App;
+import business_logic.data.Playlist;
+import business_logic.data.Song;
 import business_logic.services.MP3Player;
 import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import presentation.ui_components.playerControls.ControlViewController;
+//import presentation.ui_components.songList.SongListCell;
 import presentation.ui_components.viewChange.ViewChangeController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class PlaylistViewController {
 
     @FXML
     private BorderPane root;
     private MP3Player player;
+    private Playlist actPlaylist;
+    private ArrayList<Song> songsInPlaylist;
 
     private ControlViewController controlViewController;
     private ViewChangeController viewChangeController;
@@ -29,6 +34,8 @@ public class PlaylistViewController {
     @FXML
     Button playlistViewButton;
 
+    @FXML
+    Label playlistNameLabel;
     @FXML
     ListView<String> listView;
 
@@ -45,7 +52,7 @@ public class PlaylistViewController {
     Label songLengthLabel;
 
     @FXML
-    Button shuffleButton;
+    ToggleButton shuffleButton;
     @FXML
     Button skipBackButton;
     @FXML
@@ -53,10 +60,10 @@ public class PlaylistViewController {
     @FXML
     Button skipButton;
     @FXML
-    Button repeatButton;
+    ToggleButton repeatButton;
 
     @FXML
-    Button muteButton;
+    ToggleButton muteButton;
     @FXML
     Slider volumeSlider;
 
@@ -64,6 +71,8 @@ public class PlaylistViewController {
     public PlaylistViewController(MP3Player player, App app) {
 
         this.player = player;
+        this.actPlaylist = player.getActPlaylist();
+        this.songsInPlaylist = actPlaylist.getSongs();
 
         controlViewController = new ControlViewController(player);
         viewChangeController = new ViewChangeController(app);
@@ -80,10 +89,9 @@ public class PlaylistViewController {
         }
 
         /*
-         könnte wegfallen, wird automatisch vom FXMLLoader aufgerufen,
-         dient hier der besseren Lesbarkeit
+         fällt weg, wird automatisch vom FXMLLoader aufgerufen,
          */
-        initialize();
+//        initialize();
     }
 
     /**
@@ -101,17 +109,15 @@ public class PlaylistViewController {
          */
         player.currentSongProperty().addListener(
                 (observableValue, oldV, newV) -> {
-//                    Image cover = (Image) newV.albumCover().get();
 
                     int songLength = newV.getLength();
                     String songTitle = newV.getTitle();
                     String artist = newV.getArtist();
 
-//                    Platform.runLater(() -> coverPic.setImage(cover));
-
                     Platform.runLater(() -> songLengthLabel.setText(formatTime(songLength)));
                     Platform.runLater(() -> songTitleLabel.setText(songTitle));
                     Platform.runLater(() -> artistLabel.setText(artist));
+//                    listView.getSelectionModel().select(String.valueOf(newV));
 
                     player.currentTimeProperty().addListener(
                             (currentTimeObservable, oldTime, newTime) -> {
@@ -125,12 +131,32 @@ public class PlaylistViewController {
                 }
         );
 
-        // anders integrieren
-        listView.getItems().addAll(
-                "Song 1",
-                "Song 2",
-                "Song 3"
+
+
+        playlistNameLabel.setText(player.getActPlaylist().getName());
+
+        // Formatierung
+//        listView.setCellFactory(SongListCell.forListView());
+
+        listView.getItems().clear();
+        for(Song song: songsInPlaylist) {
+            listView.getItems().add(song.getTitle());
+        }
+        // spielt ausgewählten Song ab
+        listView.getSelectionModel().selectedItemProperty().addListener(
+                ((observableValue, oldV, newV) -> {
+                    if(newV != null) {
+
+                        Song selectedSong = getSongByTitle(newV);
+                        String selectedSongFilePath = selectedSong.getFilePath();
+
+                        player.incActPositionInPlayedSongs();
+                        player.play(selectedSongFilePath);
+                        player.countTime();
+                    }
+                })
         );
+
 
         songProgressBar.prefWidthProperty().bind(root.widthProperty().divide(2));
 
@@ -139,6 +165,8 @@ public class PlaylistViewController {
         playButton.setOnAction(controlViewController);
         skipButton.setOnAction(controlViewController);
         repeatButton.setOnAction(controlViewController);
+
+//        playButton.textProperty().bind(playButton.textProperty());
 
         muteButton.setOnAction(controlViewController);
         volumeSlider.valueProperty().addListener(
@@ -149,6 +177,20 @@ public class PlaylistViewController {
                     player.setVolume(volume);
                 }
         );
+    }
+
+    /**
+     * sucht Song in Playlist
+     * @param title - Titel des Songs, der gesucht wird
+     * @return - Song mit angegebenem Titel
+     */
+    private Song getSongByTitle(String title) {
+        for (Song song : songsInPlaylist) {
+            if (song.getTitle().equals(title)) {
+                return song;
+            }
+        }
+        return null;
     }
 
     /**

@@ -2,17 +2,14 @@ package presentation.scenes.playerView;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import presentation.ui_components.cover_SongInfo.ImageViewPane;
+import presentation.ui_components.coverImageWrapperClass.ImageViewPane;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,13 +39,13 @@ public class PlayerView extends BorderPane {
             ProgressBar songProgressBar;
             Label songLengthLabel;
         HBox controlButtons;
-            Button shuffleButton;
+            ToggleButton shuffleButton;
             Button skipBackButton;
             Button playButton;
             Button skipButton;
-            Button repeatButton;
+            ToggleButton repeatButton;
         HBox volumeControl;
-            Button muteButton;
+            ToggleButton muteButton;
             Slider volumeSlider;
 
 
@@ -142,7 +139,7 @@ public class PlayerView extends BorderPane {
 
             songInfo = new VBox();
                 songTitleLabel = new Label("SongTitle");
-                artistLabel = new Label("Interpret");
+                artistLabel = new Label("Artist");
 
             songInfo.getChildren().addAll(
                     songTitleLabel,
@@ -155,15 +152,15 @@ public class PlayerView extends BorderPane {
         coverView.setPrefHeight(552);
         coverView.setPrefWidth(475);
 
-        VBox.setMargin(coverView, new Insets(0, 20, 0, 20));
+        VBox.setMargin(coverView, new Insets(5, 20, 2, 20));
 
         songInfo.setPrefHeight(14);
         songInfo.setPrefWidth(600);
         songInfo.setSpacing(3);
 
-        VBox.setMargin(songInfo, new Insets(5, 10, 2, 20));
+        VBox.setMargin(songInfo, new Insets(0, 10, 2, 20));
 
-        VBox.setMargin(songTitleLabel, new Insets(0, 0, 2, 0));
+        VBox.setMargin(songTitleLabel, new Insets(2, 0, 2, 0));
 
         VBox.setVgrow(coverView, Priority.ALWAYS);
         VBox.setVgrow(songTitleLabel, Priority.NEVER);
@@ -171,7 +168,7 @@ public class PlayerView extends BorderPane {
 
         coverView.setId("coverView");
         songInfo.setId("songInfo");
-        songTitleLabel.setId("songTitle");
+        songTitleLabel.setId("songTitleLabel");
         artistLabel.setId("artist");
 
         cover_SongInfo.getChildren().addAll(
@@ -207,7 +204,6 @@ public class PlayerView extends BorderPane {
 
         songProgressBar.setPrefHeight(10);
         songProgressBar.setPrefWidth(200);
-        songProgressBar.setProgress(0.5);
 
         songProgressBar.getStyleClass().add("songProgressBar");
 
@@ -227,11 +223,11 @@ public class PlayerView extends BorderPane {
 
         // ControlButtons
         controlButtons = new HBox();
-            shuffleButton = new Button("Shuffle");
+            shuffleButton = new ToggleButton("Shuffle");
             skipBackButton = new Button("Back");
             playButton = new Button("Play");
             skipButton = new Button("Skip");
-            repeatButton = new Button("Repeat");
+            repeatButton = new ToggleButton("Repeat");
 
         controlButtons.setAlignment(Pos.CENTER);
         controlButtons.prefHeight(52);
@@ -263,7 +259,7 @@ public class PlayerView extends BorderPane {
 
         // VolumeControl
         volumeControl = new HBox();
-            muteButton = new Button("Mute");
+            muteButton = new ToggleButton("Mute");
             volumeSlider = new Slider();
 
         volumeControl.setAlignment(Pos.CENTER);

@@ -1,10 +1,12 @@
 package presentation.ui_components.playerControls;
 
 import business_logic.services.MP3Player;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
@@ -54,84 +56,62 @@ public class ControlViewController implements EventHandler<ActionEvent> {
      */
     @Override
     public void handle(ActionEvent actionEvent) {
-        Button sourceButton = (Button) actionEvent.getSource();
+        if (actionEvent.getSource() instanceof Button) {
+            handleRegularButton((Button) actionEvent.getSource());
+        } else {
+            handleToggleButton((ToggleButton) actionEvent.getSource());
+        }
+    }
 
-        switch (sourceButton.getId()) {
-            case "shuffleButton":
-                player.shuffle();
-                if(player.isOnShuffle()) {
-                    sourceButton.getStyleClass().add("activated");
-                } else {
-                    sourceButton.getStyleClass().remove("activated");
-                }
-                break;
+    private void handleRegularButton(Button button) {
+        switch (button.getId()) {
             case "skipBackButton":
                 player.skipBack();
                 break;
             case "playButton":
-                if(player.isPlaying()) {
+                // update Property / boolean oder so, damit der Text demnach gesetzt werden kann
+                if (player.isPlaying()) {
                     player.pause();
-                    sourceButton.setText("Play");
-                } else {
+                    Platform.runLater(() -> button.setText("Play"));
+                } else if (!player.isPlaying()) {
                     player.play();
-                    sourceButton.setText("Pause");
-//                    Platform.runLater(() -> sourceButton.setText("Pause"));
-                    // Starten des Tasks
-//                    playTask(sourceButton);
+                    Platform.runLater(() -> button.setText("Pause"));
                 }
                 break;
             case "skipButton":
                 player.skip();
                 break;
+        }
+    }
+
+    private void handleToggleButton(ToggleButton toggleButton) {
+        switch (toggleButton.getId()) {
+            case "shuffleButton":
+                player.shuffle();
+                if(toggleButton.isSelected()) {
+                    toggleButton.getStyleClass().add("activated");
+                } else {
+                    toggleButton.getStyleClass().remove("activated");
+                }
+                break;
             case "repeatButton":
                 player.repeat();
-                if(player.isOnRepeat()) {
-                    sourceButton.getStyleClass().add("activated");
+                if(toggleButton.isSelected()) {
+                    toggleButton.getStyleClass().add("activated");
                 } else {
-                    sourceButton.getStyleClass().remove("activated");
+                    toggleButton.getStyleClass().remove("activated");
                 }
                 break;
             case "muteButton":
-                if (!player.isMuted()) {
-                    System.out.println("mute");
-                    sourceButton.getStyleClass().add("activated");
+                if (toggleButton.isSelected()) {
+                    toggleButton.getStyleClass().add("activated");
                 } else {
-                    System.out.println("unmute");
-                    sourceButton.getStyleClass().remove("activated");
+                    toggleButton.getStyleClass().remove("activated");
                 }
                 player.mute();
                 break;
         }
     }
-
-//    // Methode zur Ausführung der PlayTask
-////    private void playTask(Button playButton) {
-////        Task<Void> task = new Task<Void>() {
-////            @Override
-////            protected Void call() {
-////                player.play();
-////
-//////                while (player.isPlaying()) {
-//////                    try {
-//////                        Thread.sleep(10000);
-//////                    } catch (InterruptedException e) {
-//////                        throw new RuntimeException(e);
-//////                    }
-//////                }
-////                return null;
-////            }
-////        };
-////
-////        task.setOnSucceeded(workerStateEvent -> {
-//////            Platform.runLater(() -> playButton.setText("Play"));
-////            playButton.setText("Play - CVC");
-////
-////
-////            // Füge hier weitere Aktionen hinzu, die nach dem Abspielen ausgeführt werden sollen
-////        });
-////
-////        new Thread(task).start();
-////    }
 
     public Pane getRoot() {
         return root;

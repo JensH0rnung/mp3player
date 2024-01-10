@@ -30,19 +30,26 @@ public class MP3Player {
 	private String actFileName;
 	private boolean shuffle;
 	private boolean repeat;
-	private boolean muted;
 	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
+	/**
+	 * bei jedem Skip +1
+	 * bei jedem BackSkip -1
+	 * -> aktuelle Position in playedSongs
+	 */
+	private int actPositionInPlayedSongs;
+
+	private Thread playThread;
+	private Thread countTimeThread;
 
 	private ObjectProperty<Song> currentSong = new SimpleObjectProperty<>();
 	private IntegerProperty currentTime = new SimpleIntegerProperty();
-	private DoubleProperty currentVolume = new SimpleDoubleProperty();
 
 	/**
 	 * Constructor
 	 */
 	public MP3Player(){
-//		this.minim = new SimpleMinim();
-		this.minim = new SimpleMinim(true);
+		this.minim = new SimpleMinim();
+//		this.minim = new SimpleMinim(true);   // temporäres Threading
 		this.manager = new PlaylistManager();
 		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
 		this.actPlaylist = allPlaylists.get(0);
@@ -50,7 +57,325 @@ public class MP3Player {
 		// Standardwerte
 		this.shuffle = false;
 		this.repeat = false;
-		this.muted = false;
+		this.actPositionInPlayedSongs = 0;
+	}
+
+	/**
+	 * Setzt angegeben Song & startet die Wiedergabe
+	 *
+	 * @param songFilePath - Filepath des Songs, der abgespielt werden soll
+	 *
+	 * ./02_Drei_Worte.mp3
+	 * ./01_Bring_Mich_Nach_Hause.mp3
+	 */
+	public void play(String songFilePath) {
+
+		minim.stop();
+
+		audioPlayer = minim.loadMP3File(songFilePath);
+		this.actFileName = songFilePath;
+		playedSongs.add(actFileName);
+
+		updateCurrentSong(actFileName);
+		resetCurrentPlayTime();
+
+		play();
+	}
+
+	private Song getNewSongFromPlaylist(int newSongIndex) {
+		Song newSong = null;
+		for(int i = 0; i < actPlaylist.getSongs().size(); i++) {
+			if (i == newSongIndex) {
+				newSong = actPlaylist.getSongs().get(i);
+			}
+		}
+		return newSong;
+	}
+
+	/**
+	 * Wenn die Wiedergabe pausiert ist, wird Wiedergabe fortgesetzt
+	 * Wenn kein Song gespielt wurde, wird abhängig vom Shuffle-Modus,
+	 * ein zufälliger Song oder der 1. Song der Playlist gestartet
+	 */
+	public void play() {
+		playThread = new Thread(() -> {
+			// wenn bereits eine Wiedergabe gestartet wurde
+			if(audioPlayer != null) {
+				audioPlayer.play();
+				/*
+				 Bedingung, ob bereits ein countTime-Thread existiert I guess,
+				 da ansonsten mehrfach hochgezählt wird
+				 */
+//				countTime();
+			}
+			else {
+				if(shuffle) {
+					// zufälligen Song spielen (unabghängig von Playlist)
+					String randomSongPath = getRandomSongPath();
+					currentSong.set(new Song(randomSongPath));
+
+					play(randomSongPath);
+				} else {
+					// Playlist starten
+					String firstSongInPlaylist = actPlaylist.getSongs().get(0).getFilePath();
+					currentSong.set(new Song(firstSongInPlaylist));
+
+					play(firstSongInPlaylist);
+				}
+				countTime();
+			}
+		});
+		playThread.setDaemon(true);
+		playThread.start();
+	}
+
+	/**
+	 * Zählt die Dauer der aktuellen Wiedergabe
+	 * etwas ungünstig mit dem Sleep, aber andernfalls kann NullPointerException geworfen werden
+	 */
+	public void countTime() {
+		countTimeThread = new Thread(() -> {
+			// Umgehung, der NullPointerException bei Erst-Wiedergabe aus Liste
+			try {
+				// ggf. Zeit anpassen
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			while (audioPlayer.isPlaying() && currentTime.get() < currentSong.get().getLength()) {
+				// zählt pro Sekunde um 1 hoch
+				currentTime.set(currentTime.get() + 1);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+		});
+		countTimeThread.setDaemon(true);
+		countTimeThread.start();
+	}
+
+	/**
+	 * Pausiert die Wiedergabe
+	 */
+	public void pause() {
+		if(audioPlayer.isPlaying()) {
+			audioPlayer.pause();
+		}
+	}
+
+	/**
+	 * Setzt die Lautstärke auf den angegebenen Wert
+	 * @param volume - Lautstärke 0 = muted 1 = volle Lautstärke
+	 */
+	public void setVolume(float volume) {
+		if(audioPlayer != null) {
+			// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
+			float decibel = (float) (20 * Math.log10(volume));
+			audioPlayer.setGain(decibel);
+		}
+	}
+
+	/**
+	 * Schaltet die Wiedergabe auf Stumm - und wieder auf laut
+	 */
+	public void mute() {
+		if(audioPlayer != null && !audioPlayer.isMuted()) {
+			audioPlayer.mute();
+		} else if (audioPlayer != null && audioPlayer.isMuted()) {
+			audioPlayer.unmute();
+		}
+	}
+
+	/**
+	 * Ändert die aktuelle Playlist des Players mithilfe des Namens
+	 *
+	 * @param playlistName - Name der Playlist, die gesetzt werden soll
+	 */
+	public void setPlaylist(String playlistName) {
+		int playlistIndex = -1;
+		for(int i = 0; i < allPlaylists.size(); i++) {
+			if(allPlaylists.get(i).getName().equals(playlistName)) {
+				playlistIndex = i;
+				break;
+			}
+		}
+		if(playlistIndex != -1) {
+			this.actPlaylist = allPlaylists.get(playlistIndex);
+		} else {
+			System.out.println("Diese Playlist existiert nicht");
+		}
+		System.out.println("Playlist gesetzt: " + this.actPlaylist.getName());
+	}
+
+	/**
+	 * Berechnet nächsten Song, abhöngig vom Shuffle-Modus
+	 *
+	 * 1. Shuffle on -> nächster Song = zufälliger Index, aber nicht der gleiche wie aktueller
+	 * 2. Shuffle off -> nächster Song = Index des aktuellen Songs + 1
+	 */
+	public void skip() {
+		if(audioPlayer != null) {
+			// Index von aktuellem Song suchen
+			int actSongIndex = getActSongIndex(actFileName);
+			if(actSongIndex == -1) {
+				System.out.println("Song ist nicht in aktueller Playlist");
+			}
+
+			String nextSongPath;
+			int nextSongIndex = 0;
+			int playlistLength = actPlaylist.getSongs().size();
+
+			if(this.repeat) {
+				audioPlayer.rewind();
+			} else {
+				// nächsten oder zufälligen Song der Playlist spielen
+				if (this.shuffle) {
+					do {
+						nextSongIndex = (int) (Math.random() * playlistLength);
+					} while (nextSongIndex == actSongIndex);
+				} else {
+					if (actSongIndex + 1 < actPlaylist.getSongs().size()) {
+						nextSongIndex = actSongIndex + 1;
+					}
+				}
+			}
+			// Filepath des nächsten Songs suchen & play-Methode übergeben
+			nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
+
+			actPositionInPlayedSongs++;
+
+			updateCurrentSong(nextSongPath);
+			resetCurrentPlayTime();
+			play(nextSongPath);
+		}
+	}
+
+	/**
+	 * Springt zum zuletzt abgespielten Song zurück
+	 * ... Alternativ wird zum Songanfang gesprungen (wenn Song länger als x sec läuft)
+	 * ... Alternativ bei 2x Ausführen (und wenn der Song nicht länger als x sec
+	 * 		läuft) wird zum zuletzt gespieltem Song gesprungen
+	 */
+	public void skipBack(){
+		int playedSongsSize = playedSongs.size();
+
+        if (audioPlayer != null && actFileName.equals(playedSongs.get(0))){
+            // Song neu starten
+			System.out.println("Vor diesem Song wurden keine Songs abgespielt");
+			audioPlayer.rewind();
+        }
+        if (playedSongsSize > 1) {
+
+            if (actPositionInPlayedSongs > 0) {
+				System.out.println("Index in playedSongs verringern");
+				actPositionInPlayedSongs--;
+				System.out.println("Dies sollte der Index sein - " + actPositionInPlayedSongs);
+			}
+			System.out.println("Position in playedSongs" + actPositionInPlayedSongs);
+			String lastPlayedSong = playedSongs.get(actPositionInPlayedSongs);
+
+			updateCurrentSong(lastPlayedSong);
+			play(lastPlayedSong);
+		}
+        resetCurrentPlayTime();
+	}
+
+	/**
+	 * Aktiviert / deaktiviert den Shuffle-Modus des Players
+	 */
+	public void shuffle() {
+		// shuffle = !shuffle;
+		if(shuffle) {
+			shuffle = false;
+		} else {
+			shuffle = true;
+		}
+	}
+
+	/**
+	 * Aktiviert / deaktiviert den Repeat-Modus des Players
+	 */
+	public void repeat() {
+		// repeat = !repeat;
+		if(repeat) {
+			repeat = false;
+		} else {
+			repeat = true;
+		}
+
+		// Loop starten
+		if(audioPlayer != null) {
+			if (this.repeat && !audioPlayer.isLooping()) {
+				audioPlayer.loop();
+				// Loop beenden
+			} else if (!this.repeat && audioPlayer.isLooping()) {
+				// Loop deaktivieren - Wie genau?
+
+				System.out.println("Looping beenden . . .");
+			}
+		}
+	}
+
+	/**
+	 * Setzt die aktuelle Wiedergabezeit zurück
+	 * Wird nach jedem Skip oder Skipback aufgerufen
+	 */
+	private void resetCurrentPlayTime() {
+		currentTimeProperty().set(0);
+	}
+
+	/**
+	 * Gibt den Index des aktuellen Songs zurück,
+	 * wenn sich dieser Song in der aktuellen Playlist befindet
+	 * @return - Index des aktuellen Songs
+	 */
+	private int getActSongIndex(String actFileName) {
+		for (int i = 0; i < actPlaylist.getSongs().size(); i++) {
+			if (actPlaylist.getSongs().get(i).getFilePath().equals(actFileName)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Aktualisiert die currentSongProperty,
+	 * damit die Infos korrekt in der GUI angezeigt werden
+	 *
+	 * @param filePath - FilePath des Songs, dessen Infos angezeigt werden sollen
+	 */
+	public void updateCurrentSong(String filePath) {
+			Song newSong = new Song(filePath);
+			currentSong.set(newSong);
+	}
+
+	/**
+	 * Damit bei Songauswahl aus Liste auch aktualisiert wird
+	 */
+	public void incActPositionInPlayedSongs() {
+		// Bedingung, damit Index erst bei 2. Auswahl erhöht wird
+		if(!playedSongs.isEmpty()) {
+			actPositionInPlayedSongs++;
+		}
+	}
+
+	/**
+	 * Wählt zufälligen Song aus allen Songs aus
+	 * @return - Dateipfad des zufälligen Songs
+	 */
+	private String getRandomSongPath() {
+		String randomSongPath;
+		int randomSongIndex, countAllSongs;
+		countAllSongs = manager.getAllSongs().size();
+
+		randomSongIndex = (int) (Math.random() * countAllSongs);
+
+		randomSongPath = manager.getAllSongs().get(randomSongIndex).getFilePath();
+
+		return randomSongPath;
 	}
 
 	/**
@@ -70,11 +395,11 @@ public class MP3Player {
 	}
 
 	/**
-	 * Getter für die aktuelle Lautstärke
-	 * @return -Lautstärke als Property-Objekt
+	 * Getter für die aktuelle Playlist
+	 * @return - aktuelles Playlist-Objekt
 	 */
-	public DoubleProperty currentVolumeProperty() {
-		return currentVolume;
+	public Playlist getActPlaylist() {
+		return actPlaylist;
 	}
 
 	/**
@@ -102,217 +427,9 @@ public class MP3Player {
 	}
 
 	/**
-	 * Spielt angegeben Song ab
-	 *
-	 * @param fileName - Filepath des Songs, der abgespielt werden soll
-	 *
-	 * ./02_Drei_Worte.mp3
-	 * ./01_Bring_Mich_Nach_Hause.mp3
-	 */
-	public void play(String fileName) {
-		if(audioPlayer == null) {
-			audioPlayer = minim.loadMP3File(fileName);
-			this.actFileName = fileName;
-			audioPlayer.play();
-			playedSongs.add(actFileName);
-		}
-	}
-
-	/**
-	 * Wenn die Wiedergabe pausiert ist, wird Wiedergabe fortgesetzt
-	 * Wenn kein Song gespielt wurde, wird zufälliger Song abgespielt
-	 */
-	public void play() {
-		// Wiedergabe fortsetzen
-		// Text wird nicht richtig gesetzt bei Ablaufen des Songs
-		new Thread() {
-			public void run() {
-				try {
-					System.out.println(currentVolumeProperty().get());
-					currentVolumeProperty().set(audioPlayer.getGain());
-					System.out.println(currentVolumeProperty().get());
-					audioPlayer.play();
-					// zufälligen Song spielen (unabghängig von Playlist)
-				} catch (NullPointerException e) {
-					String randomSong;
-					int randomSongIndex, countAllSongs;
-
-					countAllSongs = manager.getAllSongs().size();
-					randomSongIndex = (int) (Math.random() * countAllSongs);
-
-					randomSong = manager.getAllSongs().get(randomSongIndex).getFilePath();
-					// setzt zufällig gewählten Song
-					currentSong.set(new Song(randomSong));
-					// spielt zufällig gewählten Song
-					play(randomSong);
-				}
-
-				// Zählt die Dauer der Wiedergabe jede Sekunde hoch
-				while(isPlaying()) {
-
-					System.out.println(currentVolumeProperty().get());
-					System.out.println(audioPlayer.getGain());
-					currentTime.setValue(currentTime.getValue() + 1);
-					try {
-						Thread.sleep(1000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}.start();
-	}
-
-	/**
-	 * Pausiert die Wiedergabe
-	 */
-	public void pause() {
-		audioPlayer.pause();
-	}
-
-	/**
-	 * Setzt die Lautstärke auf den angegebenen Wert
-	 * @param volume - Lautstärke 0 = muted 1 = volle Lautstärke
-	 */
-	public void setVolume(float volume) {
-		if(audioPlayer != null) {
-			// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
-			float decibel = (float) (20 * Math.log10(volume));
-			this.currentVolume.set(decibel);
-			audioPlayer.setGain(decibel);
-		}
-	}
-
-	/**
-	 * Schaltet die Wiedergabe auf Stumm - und wieder auf laut
-	 */
-	public void mute() {
-		if(audioPlayer != null && !audioPlayer.isMuted()) {
-//			System.out.println("mute player");
-			audioPlayer.mute();
-//			this.muted = !this.muted;
-		} else if (audioPlayer != null && audioPlayer.isMuted()) {
-//			System.out.println("unmute player");
-			audioPlayer.unmute();
-//			this.muted = !this.muted;
-		}
-	}
-
-	/**
 	 * Getter für Mute-Zustand
 	 */
 	public boolean isMuted() {
-		return this.muted;
-	}
-
-	/**
-	 * Ändert die aktuelle Playlist des Players mithilfe des Namens
-	 *
-	 * @param playlistName - Name der Playlist, die gesetzt werden soll
-	 */
-	public void setPlaylist(String playlistName) {
-		int playlistIndex = -1;
-		for(int i = 0; i < allPlaylists.size(); i++) {
-			if(allPlaylists.get(i).getName().equals(playlistName)) {
-				playlistIndex = i;
-				break;
-			}
-		}
-		if(playlistIndex != -1) {
-			this.actPlaylist = allPlaylists.get(playlistIndex);
-		} else {
-			System.out.println("Diese Playlist existiert nicht");
-		}
-		System.out.println("Playlist gesetzt: " + this.actPlaylist.getName());
-	}
-
-	// nochmal überdenken, geht bestimmt einfacher
-	/**
-	 * Berechnet nächsten Song, abhöngig vom Shuffle-Modus
-	 *
-	 * 1. Shuffle on -> nächster Song = zufälliger Index, aber nicht der gleiche wie aktueller
-	 * 2. Shuffle off -> nächster Song = Index des aktuellen Songs + 1
-	 */
-	public void skip(){
-		if(audioPlayer != null) {
-			// Index von aktuellem Song suchen
-			int actSongIndex = 0;
-			for (int i = 0; i < actPlaylist.getSongs().size(); i++) {
-				if (actPlaylist.getSongs().get(i).toString().equals(this.actFileName)) {
-					actSongIndex = i;
-					break;
-				}
-			}
-
-			// ans Ende vom aktuellen Song springen
-			int songLength = audioPlayer.length();
-			audioPlayer.skip(songLength);
-
-			String nextSongPath, nextSongName;
-			int nextSongIndex;
-			int playlistLength = actPlaylist.getSongs().size();
-
-			// nächsten Song der Playlist oder zufälligen Song spielen
-			if (this.shuffle) {
-				do {
-					nextSongIndex = (int) (Math.random() * playlistLength);
-				} while (nextSongIndex == actSongIndex);
-			} else {
-				nextSongIndex = actSongIndex + 1;
-			}
-			// Filepath des nächsten Songs suchen & play-Methode übergeben
-//			nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
-//			nextSongName = actPlaylist.getSongs().get(nextSongIndex).getTitle();
-//			System.out.println("Playing next:\t" + nextSongName);
-//			play(nextSongPath);
-		}
-	}
-
-	/**
-	 * Springt zum zuletzt abgespielten Song zurück
-	 * ... Alternativ wird zum Songanfang gesprungen (wenn Song länger als x sec läuft)
-	 * ... Alternativ bei 2x Ausführen (und wenn der Song nicht länger als x sec
-	 * 		läuft) wird zum zuletzt gespieltem Song gesprungen
-	 */
-	public void skipBack(){
-		int playedSongsSize = playedSongs.size();
-
-		if (playedSongsSize > 1) {
-			int lastPlayedIndex = playedSongsSize - 1;
-			String lastPlayedSong = playedSongs.get(lastPlayedIndex - 1);
-			System.out.println("Springe zurück zu: " + lastPlayedSong);
-			play(lastPlayedSong);
-		}
-		else {
-			System.out.println("Vor diesem Song wurden keine Songs abgespielt");
-		}
-	}
-
-	/**
-	 * Aktiviert / deaktiviert den Shuffle-Modus des Players
-	 */
-	public void shuffle() {
-		this.shuffle = !this.shuffle;
-	}
-
-	/**
-	 * Aktiviert / deaktiviert den Repeat-Modus des Players
-	 */
-	public void repeat() {
-
-		this.repeat = !this.repeat;
-
-		// Loop starten
-		if(audioPlayer != null) {
-			if (this.repeat && !audioPlayer.isLooping()) {
-				audioPlayer.loop();
-				System.out.println("Looping - " + audioPlayer.isLooping());
-				// Loop beenden
-			} else if (!this.repeat && audioPlayer.isLooping()) {
-				// Loop deaktivieren - Wie genau?
-
-				System.out.println("Looping - " + audioPlayer.isLooping());
-			}
-		}
+		return audioPlayer.isMuted();
 	}
 }

@@ -18,8 +18,6 @@ public class PlaylistManager {
     private ArrayList<Playlist> allPlaylists = new ArrayList<>();
     private ArrayList<Song> allSongs = new ArrayList<>();
     private static final String musicDir = "./assets/music";
-    // hier den neuen Pfad adden
-    // Welche Probleme treten auf?
     private static final String m3uFile = ".*\\.m3u";
     private static final String mp3File = ".*\\.mp3";
     private int playlistCount; // Anzahl Playlists im assets.music1.music-Ordner
@@ -71,7 +69,7 @@ public class PlaylistManager {
 
         try (BufferedReader reader = new BufferedReader(new FileReader(m3uFile))) {
 
-            String line = null;
+            String line;
             while ((line = reader.readLine()) != null) {
                 if (line.matches(mp3File)) {
                     Song song = new Song(line);

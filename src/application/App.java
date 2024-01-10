@@ -49,9 +49,9 @@ public class App extends Application {
         this.primaryStage = primaryStage; // Window
 
         // Standard-View
-        Pane root = primaryViews.get("PlayerView");
+        Pane root = primaryViews.get("PlaylistView");
 
-        Scene scene = new Scene(root, 475, 600);
+        Scene scene = new Scene(root, 475, 650);
         /*
          Einbindung von .css-Dateien
          Styling generell - muss überarbeitet werden
@@ -68,9 +68,7 @@ public class App extends Application {
         primaryStage.show();
     }
 
-    public void stop() {
-
-    }
+    public void stop() {}
 
     /**
      * Wechselt zwischen erstellten Views
