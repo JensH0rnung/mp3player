@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
+ * Benötige ich diese Klasse?
  * Verwaltet alle Properties des MP3Players
  */
 public class PlayerState {

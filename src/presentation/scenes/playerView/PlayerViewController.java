@@ -36,13 +36,15 @@ public class PlayerViewController {
     ProgressBar songProgressBar;
     Label songLengthLabel;
 
-    ToggleButton shuffleButton;
+    Button shuffleButton;
     Button skipBackButton;
     Button playButton;
     Button skipButton;
-    ToggleButton repeatButton;
+    Button repeatButton;
+    // Test
+    Button testSkip;
 
-    ToggleButton muteButton;
+    Button muteButton;
     Slider volumeSlider;
 
     public PlayerViewController(MP3Player player, App app) {
@@ -80,6 +82,8 @@ public class PlayerViewController {
         playButton = root.playButton;
         skipButton = root.skipButton;
         repeatButton = root.repeatButton;
+        // test
+        testSkip = root.testSkip;
 
         muteButton = root.muteButton;
         volumeSlider = root.volumeSlider;
@@ -126,12 +130,48 @@ public class PlayerViewController {
         playButton.setOnAction(controlViewController);
         skipButton.setOnAction(controlViewController);
         repeatButton.setOnAction(controlViewController);
+        // Test
+        testSkip.setOnAction(controlViewController);
+
+        shuffleButton.styleProperty().bind(player.shuffleStyleProperty());
+        shuffleButton.styleProperty().addListener(
+                (observableValue, oldStyle, newStyle) -> {
+                    shuffleButton.getStyleClass().remove(oldStyle);
+                    shuffleButton.getStyleClass().add(newStyle);
+                }
+        );
+
+        repeatButton.styleProperty().bind(player.repeatStyleProperty());
+        repeatButton.styleProperty().addListener(
+                (observableValue, oldStyle, newStyle) -> {
+                    repeatButton.getStyleClass().remove(oldStyle);
+                    repeatButton.getStyleClass().add(newStyle);
+                }
+        );
+
+        muteButton.styleProperty().bind(player.muteStyleProperty());
+        muteButton.styleProperty().addListener(
+                (observableValue, oldStyle, newStyle) -> {
+                    muteButton.getStyleClass().remove(oldStyle);
+                    muteButton.getStyleClass().add(newStyle);
+                }
+        );
+
+        playButton.textProperty().bind(player.playButtonTextProperty());
 
         muteButton.setOnAction(controlViewController);
+
+        // Initialwert, * 100, damit Slider auf korrektem Wert steht
+        volumeSlider.setValue(player.getCurrentVolume() * 100);
+        // Einschränkung auf Wertebereich der setVolume-Methode
+        volumeSlider.setMax(1.0);
+        volumeSlider.setMin(0.0);
+        volumeSlider.valueProperty().bindBidirectional(player.currentVolumeProperty());
+
         volumeSlider.valueProperty().addListener(
                 (observableValue, oldValue, newValue) -> {
                     float volume;
-                    volume = newValue.floatValue() / 100;
+                    volume = newValue.floatValue();
                     player.setVolume(volume);
                 }
         );

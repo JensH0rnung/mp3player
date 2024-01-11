@@ -1,12 +1,10 @@
 package presentation.ui_components.playerControls;
 
 import business_logic.services.MP3Player;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 
@@ -56,59 +54,61 @@ public class ControlViewController implements EventHandler<ActionEvent> {
      */
     @Override
     public void handle(ActionEvent actionEvent) {
-        if (actionEvent.getSource() instanceof Button) {
-            handleRegularButton((Button) actionEvent.getSource());
-        } else {
-            handleToggleButton((ToggleButton) actionEvent.getSource());
-        }
-    }
+        Button sourceButton = (Button) actionEvent.getSource();
+        switch (sourceButton.getId()) {
 
-    private void handleRegularButton(Button button) {
-        switch (button.getId()) {
+            case "shuffleButton":
+                player.shuffle();
+                // wenn shuffle aktiviert
+                if(player.shuffleStateProperty().get()) {
+                    player.shuffleStyleProperty().set("activated");
+
+                    sourceButton.getStyleClass().remove("deactivated");
+                } else {
+                    player.shuffleStyleProperty().set("deactivated");
+
+                    sourceButton.getStyleClass().remove("activated");
+                }
+                break;
             case "skipBackButton":
                 player.skipBack();
                 break;
             case "playButton":
-                // update Property / boolean oder so, damit der Text demnach gesetzt werden kann
                 if (player.isPlaying()) {
                     player.pause();
-                    Platform.runLater(() -> button.setText("Play"));
+                    player.playButtonTextProperty().set("Play");
                 } else if (!player.isPlaying()) {
                     player.play();
-                    Platform.runLater(() -> button.setText("Pause"));
+                    player.playButtonTextProperty().set("Pause");
                 }
                 break;
             case "skipButton":
                 player.skip();
                 break;
-        }
-    }
-
-    private void handleToggleButton(ToggleButton toggleButton) {
-        switch (toggleButton.getId()) {
-            case "shuffleButton":
-                player.shuffle();
-                if(toggleButton.isSelected()) {
-                    toggleButton.getStyleClass().add("activated");
-                } else {
-                    toggleButton.getStyleClass().remove("activated");
-                }
-                break;
             case "repeatButton":
                 player.repeat();
-                if(toggleButton.isSelected()) {
-                    toggleButton.getStyleClass().add("activated");
+                // wenn repeat aktiviert
+                if(player.repeatStateProperty().get()) {
+                    player.repeatStyleProperty().set("activated");
+
+                    sourceButton.getStyleClass().remove("deactivated");
                 } else {
-                    toggleButton.getStyleClass().remove("activated");
+                    player.repeatStyleProperty().set("deactivated");
+
+                    sourceButton.getStyleClass().remove("activated");
                 }
                 break;
             case "muteButton":
-                if (toggleButton.isSelected()) {
-                    toggleButton.getStyleClass().add("activated");
-                } else {
-                    toggleButton.getStyleClass().remove("activated");
-                }
                 player.mute();
+                if (player.muteStateProperty().get()) {
+                    player.muteStyleProperty().set("activated");
+
+                    sourceButton.getStyleClass().remove("deactivated");
+                } else {
+                    player.muteStyleProperty().set("deactivated");
+
+                    sourceButton.getStyleClass().remove("activated");
+                }
                 break;
         }
     }

@@ -28,8 +28,10 @@ public class MP3Player {
 	private ArrayList<Playlist> allPlaylists;
 	private Playlist actPlaylist;
 	private String actFileName;
-	private boolean shuffle;
-	private boolean repeat;
+//	private boolean shuffle;
+//	private boolean repeat;
+	private boolean muted;
+	private boolean onPause;
 	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
 	/**
 	 * bei jedem Skip +1
@@ -43,6 +45,24 @@ public class MP3Player {
 
 	private ObjectProperty<Song> currentSong = new SimpleObjectProperty<>();
 	private IntegerProperty currentTime = new SimpleIntegerProperty();
+	private FloatProperty currentVolume = new SimpleFloatProperty(0.5F);  // Standardlautstärke
+
+	public float getCurrentVolume() {
+		return currentVolume.get();
+	}
+
+	public FloatProperty currentVolumeProperty() {
+		return currentVolume;
+	}
+
+	private StringProperty shuffleStyle = new SimpleStringProperty();
+	private StringProperty repeatStyle = new SimpleStringProperty();
+	private StringProperty muteStyle = new SimpleStringProperty();
+	private StringProperty playButtonText = new SimpleStringProperty("Play");
+
+	private BooleanProperty shuffleState = new SimpleBooleanProperty();
+	private BooleanProperty repeatState = new SimpleBooleanProperty();
+	private BooleanProperty muteState = new SimpleBooleanProperty();
 
 	/**
 	 * Constructor
@@ -52,11 +72,12 @@ public class MP3Player {
 //		this.minim = new SimpleMinim(true);   // temporäres Threading
 		this.manager = new PlaylistManager();
 		this.allPlaylists = manager.loadAllPlaylists();	// lädt alle Playlists aus Verzeichnis
-		this.actPlaylist = allPlaylists.get(0);
+		this.actPlaylist = allPlaylists.get(0);  // hier 1 für 30s TestSong
 		this.playedSongs = new ArrayList<>();
 		// Standardwerte
-		this.shuffle = false;
-		this.repeat = false;
+//		this.shuffle = false;
+//		this.repeat = false;
+		this.muted = false;
 		this.actPositionInPlayedSongs = 0;
 	}
 
@@ -65,8 +86,6 @@ public class MP3Player {
 	 *
 	 * @param songFilePath - Filepath des Songs, der abgespielt werden soll
 	 *
-	 * ./02_Drei_Worte.mp3
-	 * ./01_Bring_Mich_Nach_Hause.mp3
 	 */
 	public void play(String songFilePath) {
 
@@ -76,8 +95,16 @@ public class MP3Player {
 		this.actFileName = songFilePath;
 		playedSongs.add(actFileName);
 
+		// setzt bei jeder neuen Wiedergabe die vorherige Lautstärke, bzw. muted diese
+		setVolume(currentVolume.get());
+		if (isMuted()) {
+			audioPlayer.mute();
+		}
+
 		updateCurrentSong(actFileName);
 		resetCurrentPlayTime();
+
+		System.out.println(audioPlayer.length());
 
 		play();
 	}
@@ -101,7 +128,15 @@ public class MP3Player {
 		playThread = new Thread(() -> {
 			// wenn bereits eine Wiedergabe gestartet wurde
 			if(audioPlayer != null) {
+
+				// Test für Autoskip
+				System.out.println("Test für Autoskip");
+				audioPlayer.skip(audioPlayer.length() - 10000);
+				currentTimeProperty().set((audioPlayer.length() - 10000) / 1000);
+
 				audioPlayer.play();
+//				onPause = false;
+//				System.out.println("Pause - " + onPause);
 				/*
 				 Bedingung, ob bereits ein countTime-Thread existiert I guess,
 				 da ansonsten mehrfach hochgezählt wird
@@ -109,7 +144,7 @@ public class MP3Player {
 //				countTime();
 			}
 			else {
-				if(shuffle) {
+				if(isOnShuffle()) {
 					// zufälligen Song spielen (unabghängig von Playlist)
 					String randomSongPath = getRandomSongPath();
 					currentSong.set(new Song(randomSongPath));
@@ -122,8 +157,20 @@ public class MP3Player {
 
 					play(firstSongInPlaylist);
 				}
+				System.out.println("Start CountTime in play()");
 				countTime();
+//				System.out.println("Pause - " + onPause);
 			}
+
+			/*
+			Autoskip ggf. anpassen
+				ca. 2s vor Songende wird geskipped
+				(mit kleinerem Wert geht es nicht)
+			 */
+			if(audioPlayer.position() >= audioPlayer.length() - 2000) {
+				skip();
+			}
+
 		});
 		playThread.setDaemon(true);
 		playThread.start();
@@ -142,14 +189,18 @@ public class MP3Player {
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
-			while (audioPlayer.isPlaying() && currentTime.get() < currentSong.get().getLength()) {
-				// zählt pro Sekunde um 1 hoch
-				currentTime.set(currentTime.get() + 1);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+			// zählt pro Sekunde um 1 hoch
+			while (audioPlayer.isPlaying() && currentTime.get() <= currentSong.get().getLength()) {
+//				if(!onPause) {
+					currentTime.set(currentTime.get() + 1);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+//						countTimeThread.interrupt();
+//						System.out.println("interrupted - " + countTimeThread.isInterrupted());
+					}
+//				}
 			}
 
 		});
@@ -163,6 +214,8 @@ public class MP3Player {
 	public void pause() {
 		if(audioPlayer.isPlaying()) {
 			audioPlayer.pause();
+//			onPause = true;
+//			System.out.println("Pause - " + onPause);
 		}
 	}
 
@@ -175,6 +228,7 @@ public class MP3Player {
 			// Wert in Dezibel umrechnen, da setGain mit Decibel arbeitet
 			float decibel = (float) (20 * Math.log10(volume));
 			audioPlayer.setGain(decibel);
+			currentVolume.set(volume);
 		}
 	}
 
@@ -182,10 +236,14 @@ public class MP3Player {
 	 * Schaltet die Wiedergabe auf Stumm - und wieder auf laut
 	 */
 	public void mute() {
-		if(audioPlayer != null && !audioPlayer.isMuted()) {
-			audioPlayer.mute();
-		} else if (audioPlayer != null && audioPlayer.isMuted()) {
-			audioPlayer.unmute();
+		if(audioPlayer != null) {
+			if (isMuted()) {
+				muteStateProperty().set(false);
+				audioPlayer.unmute();
+			} else {
+				muteStateProperty().set(true);
+				audioPlayer.mute();
+			}
 		}
 	}
 
@@ -220,6 +278,7 @@ public class MP3Player {
 		if(audioPlayer != null) {
 			// Index von aktuellem Song suchen
 			int actSongIndex = getActSongIndex(actFileName);
+			// bisher nicht relevante Info
 			if(actSongIndex == -1) {
 				System.out.println("Song ist nicht in aktueller Playlist");
 			}
@@ -228,11 +287,11 @@ public class MP3Player {
 			int nextSongIndex = 0;
 			int playlistLength = actPlaylist.getSongs().size();
 
-			if(this.repeat) {
+			if(repeatStateProperty().get()) {
 				audioPlayer.rewind();
 			} else {
 				// nächsten oder zufälligen Song der Playlist spielen
-				if (this.shuffle) {
+				if (shuffleStateProperty().get()) {
 					do {
 						nextSongIndex = (int) (Math.random() * playlistLength);
 					} while (nextSongIndex == actSongIndex);
@@ -249,6 +308,10 @@ public class MP3Player {
 
 			updateCurrentSong(nextSongPath);
 			resetCurrentPlayTime();
+//			Thread skipThread = new Thread(
+//					() -> play(nextSongPath)
+//			);
+//			skipThread.start();
 			play(nextSongPath);
 		}
 	}
@@ -287,11 +350,12 @@ public class MP3Player {
 	 * Aktiviert / deaktiviert den Shuffle-Modus des Players
 	 */
 	public void shuffle() {
-		// shuffle = !shuffle;
-		if(shuffle) {
-			shuffle = false;
+		if(isOnShuffle()) {
+			shuffleStateProperty().set(false);
+			System.out.println("Shuffle - " + isOnShuffle());
 		} else {
-			shuffle = true;
+			shuffleStateProperty().set(true);
+			System.out.println("Shuffle - " + isOnShuffle());
 		}
 	}
 
@@ -299,19 +363,20 @@ public class MP3Player {
 	 * Aktiviert / deaktiviert den Repeat-Modus des Players
 	 */
 	public void repeat() {
-		// repeat = !repeat;
-		if(repeat) {
-			repeat = false;
+		if(isOnRepeat()) {
+			repeatStateProperty().set(false);
+			System.out.println("Repeat - " + isOnRepeat());
 		} else {
-			repeat = true;
+			repeatStateProperty().set(true);
+			System.out.println("Repeat - " + isOnRepeat());
 		}
 
 		// Loop starten
 		if(audioPlayer != null) {
-			if (this.repeat && !audioPlayer.isLooping()) {
+			if (isOnRepeat() && !audioPlayer.isLooping()) {
 				audioPlayer.loop();
 				// Loop beenden
-			} else if (!this.repeat && audioPlayer.isLooping()) {
+			} else if (!isOnRepeat() && audioPlayer.isLooping()) {
 				// Loop deaktivieren - Wie genau?
 
 				System.out.println("Looping beenden . . .");
@@ -379,22 +444,6 @@ public class MP3Player {
 	}
 
 	/**
-	 * Getter für aktuelles Song-Objekt
-	 * @return - Song als Property-Objekt
-	 */
-	public ObjectProperty<Song> currentSongProperty() {
-		return currentSong;
-	}
-
-	/**
-	 * Getter für die aktuelle Wiedergabezeit
-	 * @return - Zeit in s
-	 */
-	public IntegerProperty currentTimeProperty() {
-		return currentTime;
-	}
-
-	/**
 	 * Getter für die aktuelle Playlist
 	 * @return - aktuelles Playlist-Objekt
 	 */
@@ -411,25 +460,98 @@ public class MP3Player {
 	}
 
 	/**
-	 * Getter für ShuffleModus
-	 * @return - shuffle on | off
-	 */
-	public boolean isOnShuffle() {
-		return this.shuffle;
-	}
-
-	/**
 	 * Getter für RepeatModus
 	 * @return - repeat on | off
 	 */
-	public boolean isOnRepeat() {
-		return this.repeat;
+//	public boolean isOnRepeat() {
+//		return this.repeat;
+//	}
+
+	/**
+	 * Getter für aktuelles Song-Objekt
+	 * @return - Song als Property-Objekt
+	 */
+	public ObjectProperty<Song> currentSongProperty() {
+		return currentSong;
 	}
 
 	/**
-	 * Getter für Mute-Zustand
+	 * Getter für die aktuelle Wiedergabezeit
+	 * @return - Zeit in s
 	 */
+	public IntegerProperty currentTimeProperty() {
+		return currentTime;
+	}
+
+	public boolean isOnShuffle() {
+		return shuffleState.get();
+	}
+
+	public BooleanProperty shuffleStateProperty() {
+		return shuffleState;
+	}
+
+	public boolean isOnRepeat() {
+		return repeatState.get();
+	}
+
+	public BooleanProperty repeatStateProperty() {
+		return repeatState;
+	}
+
 	public boolean isMuted() {
-		return audioPlayer.isMuted();
+		return muteState.get();
+	}
+
+	public BooleanProperty muteStateProperty() {
+		return muteState;
+	}
+
+	public String getShuffleStyle() {
+		return shuffleStyle.get();
+	}
+
+	public StringProperty shuffleStyleProperty() {
+		return shuffleStyle;
+	}
+
+	public void setShuffleStyle(String shuffleStyle) {
+		this.shuffleStyle.set(shuffleStyle);
+	}
+
+	public String getRepeatStyle() {
+		return repeatStyle.get();
+	}
+
+	public StringProperty repeatStyleProperty() {
+		return repeatStyle;
+	}
+
+	public void setRepeatStyle(String repeatStyle) {
+		this.repeatStyle.set(repeatStyle);
+	}
+
+	public String getMuteStyle() {
+		return muteStyle.get();
+	}
+
+	public StringProperty muteStyleProperty() {
+		return muteStyle;
+	}
+
+	public void setMuteStyle(String muteStyle) {
+		this.muteStyle.set(muteStyle);
+	}
+
+	public String getPlayButtonText() {
+		return playButtonText.get();
+	}
+
+	public StringProperty playButtonTextProperty() {
+		return playButtonText;
+	}
+
+	public void setPlayButtonText(String playButtonText) {
+		this.playButtonText.set(playButtonText);
 	}
 }

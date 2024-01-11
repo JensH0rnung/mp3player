@@ -39,13 +39,15 @@ public class PlayerView extends BorderPane {
             ProgressBar songProgressBar;
             Label songLengthLabel;
         HBox controlButtons;
-            ToggleButton shuffleButton;
+            Button shuffleButton;
             Button skipBackButton;
             Button playButton;
             Button skipButton;
-            ToggleButton repeatButton;
+            Button repeatButton;
+            // Test
+            Button testSkip;
         HBox volumeControl;
-            ToggleButton muteButton;
+            Button muteButton;
             Slider volumeSlider;
 
 
@@ -223,11 +225,13 @@ public class PlayerView extends BorderPane {
 
         // ControlButtons
         controlButtons = new HBox();
-            shuffleButton = new ToggleButton("Shuffle");
+            shuffleButton = new Button("Shuffle");
             skipBackButton = new Button("Back");
             playButton = new Button("Play");
             skipButton = new Button("Skip");
-            repeatButton = new ToggleButton("Repeat");
+            repeatButton = new Button("Repeat");
+            // Test
+            testSkip = new Button("TESTSKIP");
 
         controlButtons.setAlignment(Pos.CENTER);
         controlButtons.prefHeight(52);
@@ -248,18 +252,21 @@ public class PlayerView extends BorderPane {
         playButton.setId("playButton");
         skipButton.setId("skipButton");
         repeatButton.setId("repeatButton");
+        // Test
+        testSkip.setId("testSkip");
 
         controlButtons.getChildren().addAll(
           shuffleButton,
           skipBackButton,
           playButton,
           skipButton,
-          repeatButton
+          repeatButton,
+          testSkip
         );
 
         // VolumeControl
         volumeControl = new HBox();
-            muteButton = new ToggleButton("Mute");
+            muteButton = new Button("Mute");
             volumeSlider = new Slider();
 
         volumeControl.setAlignment(Pos.CENTER);

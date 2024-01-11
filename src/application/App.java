@@ -49,7 +49,7 @@ public class App extends Application {
         this.primaryStage = primaryStage; // Window
 
         // Standard-View
-        Pane root = primaryViews.get("PlaylistView");
+        Pane root = primaryViews.get("PlayerView");
 
         Scene scene = new Scene(root, 475, 650);
         /*
