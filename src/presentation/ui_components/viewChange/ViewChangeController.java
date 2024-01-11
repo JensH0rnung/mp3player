@@ -16,10 +16,10 @@ public class ViewChangeController implements EventHandler<ActionEvent> {
     private HBox root;
     private App app;
 
-//    @FXML
-//    Button playerViewbutton;
-//    @FXML
-//    Button playlistViewButton;
+    @FXML
+    private Button playerViewButton;
+    @FXML
+    private Button playlistViewButton;
 
     public ViewChangeController(App app) {
 
@@ -33,6 +33,9 @@ public class ViewChangeController implements EventHandler<ActionEvent> {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        // StandardView
+//        playerViewButton.getStyleClass().add("selected-view");
     }
 
 
@@ -47,9 +50,13 @@ public class ViewChangeController implements EventHandler<ActionEvent> {
         switch (sourceButton.getId()) {
             case "playerViewButton":
                 app.switchView("PlayerView");
+                playerViewButton.getStyleClass().add("selectedView");
+                playlistViewButton.getStyleClass().remove("selectedView");
                 break;
             case "playlistViewButton":
                 app.switchView("PlaylistView");
+                playlistViewButton.getStyleClass().add("selectedView");
+                playerViewButton.getStyleClass().remove("selectedView");
                 break;
         }
     }

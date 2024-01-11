@@ -44,8 +44,6 @@ public class PlayerView extends BorderPane {
             Button playButton;
             Button skipButton;
             Button repeatButton;
-            // Test
-            Button testSkip;
         HBox volumeControl;
             Button muteButton;
             Slider volumeSlider;
@@ -230,8 +228,6 @@ public class PlayerView extends BorderPane {
             playButton = new Button("Play");
             skipButton = new Button("Skip");
             repeatButton = new Button("Repeat");
-            // Test
-            testSkip = new Button("TESTSKIP");
 
         controlButtons.setAlignment(Pos.CENTER);
         controlButtons.prefHeight(52);
@@ -252,16 +248,13 @@ public class PlayerView extends BorderPane {
         playButton.setId("playButton");
         skipButton.setId("skipButton");
         repeatButton.setId("repeatButton");
-        // Test
-        testSkip.setId("testSkip");
 
         controlButtons.getChildren().addAll(
           shuffleButton,
           skipBackButton,
           playButton,
           skipButton,
-          repeatButton,
-          testSkip
+          repeatButton
         );
 
         // VolumeControl

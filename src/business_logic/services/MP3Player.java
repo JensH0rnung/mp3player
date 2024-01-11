@@ -28,10 +28,7 @@ public class MP3Player {
 	private ArrayList<Playlist> allPlaylists;
 	private Playlist actPlaylist;
 	private String actFileName;
-//	private boolean shuffle;
-//	private boolean repeat;
-	private boolean muted;
-	private boolean onPause;
+	private boolean countTimeCalled;
 	private ArrayList<String> playedSongs; // zur Speicherung der Filepaths bereits gespielter Songs
 	/**
 	 * bei jedem Skip +1
@@ -75,10 +72,8 @@ public class MP3Player {
 		this.actPlaylist = allPlaylists.get(0);  // hier 1 für 30s TestSong
 		this.playedSongs = new ArrayList<>();
 		// Standardwerte
-//		this.shuffle = false;
-//		this.repeat = false;
-		this.muted = false;
-		this.actPositionInPlayedSongs = 0;
+		this.countTimeCalled = false;
+		this.actPositionInPlayedSongs = 0;  // Position in playedSongs
 	}
 
 	/**
@@ -104,19 +99,7 @@ public class MP3Player {
 		updateCurrentSong(actFileName);
 		resetCurrentPlayTime();
 
-		System.out.println(audioPlayer.length());
-
 		play();
-	}
-
-	private Song getNewSongFromPlaylist(int newSongIndex) {
-		Song newSong = null;
-		for(int i = 0; i < actPlaylist.getSongs().size(); i++) {
-			if (i == newSongIndex) {
-				newSong = actPlaylist.getSongs().get(i);
-			}
-		}
-		return newSong;
 	}
 
 	/**
@@ -130,18 +113,11 @@ public class MP3Player {
 			if(audioPlayer != null) {
 
 				// Test für Autoskip
-				System.out.println("Test für Autoskip");
-				audioPlayer.skip(audioPlayer.length() - 10000);
-				currentTimeProperty().set((audioPlayer.length() - 10000) / 1000);
+//				System.out.println("Test für Autoskip");
+//				audioPlayer.skip(audioPlayer.length() - 10000);
+//				currentTimeProperty().set((audioPlayer.length() - 10000) / 1000);
 
 				audioPlayer.play();
-//				onPause = false;
-//				System.out.println("Pause - " + onPause);
-				/*
-				 Bedingung, ob bereits ein countTime-Thread existiert I guess,
-				 da ansonsten mehrfach hochgezählt wird
-				 */
-//				countTime();
 			}
 			else {
 				if(isOnShuffle()) {
@@ -157,9 +133,6 @@ public class MP3Player {
 
 					play(firstSongInPlaylist);
 				}
-				System.out.println("Start CountTime in play()");
-				countTime();
-//				System.out.println("Pause - " + onPause);
 			}
 
 			/*
@@ -170,7 +143,6 @@ public class MP3Player {
 			if(audioPlayer.position() >= audioPlayer.length() - 2000) {
 				skip();
 			}
-
 		});
 		playThread.setDaemon(true);
 		playThread.start();
@@ -181,26 +153,24 @@ public class MP3Player {
 	 * etwas ungünstig mit dem Sleep, aber andernfalls kann NullPointerException geworfen werden
 	 */
 	public void countTime() {
+		// für einmaligen Aufruf aus Liste
+		countTimeCalled = true;
+
 		countTimeThread = new Thread(() -> {
 			// Umgehung, der NullPointerException bei Erst-Wiedergabe aus Liste
 			try {
-				// ggf. Zeit anpassen
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 			// zählt pro Sekunde um 1 hoch
 			while (audioPlayer.isPlaying() && currentTime.get() <= currentSong.get().getLength()) {
-//				if(!onPause) {
 					currentTime.set(currentTime.get() + 1);
 					try {
 						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-//						countTimeThread.interrupt();
-//						System.out.println("interrupted - " + countTimeThread.isInterrupted());
 					}
-//				}
 			}
 
 		});
@@ -214,8 +184,6 @@ public class MP3Player {
 	public void pause() {
 		if(audioPlayer.isPlaying()) {
 			audioPlayer.pause();
-//			onPause = true;
-//			System.out.println("Pause - " + onPause);
 		}
 	}
 
@@ -284,7 +252,7 @@ public class MP3Player {
 			}
 
 			String nextSongPath;
-			int nextSongIndex = 0;
+			int nextSongIndex = -1;
 			int playlistLength = actPlaylist.getSongs().size();
 
 			if(repeatStateProperty().get()) {
@@ -300,19 +268,18 @@ public class MP3Player {
 						nextSongIndex = actSongIndex + 1;
 					}
 				}
+
 			}
 			// Filepath des nächsten Songs suchen & play-Methode übergeben
-			nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
-
-			actPositionInPlayedSongs++;
-
-			updateCurrentSong(nextSongPath);
+			try {
+				nextSongPath = actPlaylist.getSongs().get(nextSongIndex).getFilePath();
+				updateCurrentSong(nextSongPath);
+				play(nextSongPath);
+				actPositionInPlayedSongs++;
+			} catch(IndexOutOfBoundsException e) {
+				System.out.println("Rewind");
+			}
 			resetCurrentPlayTime();
-//			Thread skipThread = new Thread(
-//					() -> play(nextSongPath)
-//			);
-//			skipThread.start();
-			play(nextSongPath);
 		}
 	}
 
@@ -333,11 +300,8 @@ public class MP3Player {
         if (playedSongsSize > 1) {
 
             if (actPositionInPlayedSongs > 0) {
-				System.out.println("Index in playedSongs verringern");
 				actPositionInPlayedSongs--;
-				System.out.println("Dies sollte der Index sein - " + actPositionInPlayedSongs);
 			}
-			System.out.println("Position in playedSongs" + actPositionInPlayedSongs);
 			String lastPlayedSong = playedSongs.get(actPositionInPlayedSongs);
 
 			updateCurrentSong(lastPlayedSong);
@@ -352,10 +316,8 @@ public class MP3Player {
 	public void shuffle() {
 		if(isOnShuffle()) {
 			shuffleStateProperty().set(false);
-			System.out.println("Shuffle - " + isOnShuffle());
 		} else {
 			shuffleStateProperty().set(true);
-			System.out.println("Shuffle - " + isOnShuffle());
 		}
 	}
 
@@ -365,22 +327,8 @@ public class MP3Player {
 	public void repeat() {
 		if(isOnRepeat()) {
 			repeatStateProperty().set(false);
-			System.out.println("Repeat - " + isOnRepeat());
 		} else {
 			repeatStateProperty().set(true);
-			System.out.println("Repeat - " + isOnRepeat());
-		}
-
-		// Loop starten
-		if(audioPlayer != null) {
-			if (isOnRepeat() && !audioPlayer.isLooping()) {
-				audioPlayer.loop();
-				// Loop beenden
-			} else if (!isOnRepeat() && audioPlayer.isLooping()) {
-				// Loop deaktivieren - Wie genau?
-
-				System.out.println("Looping beenden . . .");
-			}
 		}
 	}
 
@@ -458,14 +406,6 @@ public class MP3Player {
 	public boolean isPlaying() {
 		return audioPlayer != null && audioPlayer.isPlaying();
 	}
-
-	/**
-	 * Getter für RepeatModus
-	 * @return - repeat on | off
-	 */
-//	public boolean isOnRepeat() {
-//		return this.repeat;
-//	}
 
 	/**
 	 * Getter für aktuelles Song-Objekt
@@ -553,5 +493,13 @@ public class MP3Player {
 
 	public void setPlayButtonText(String playButtonText) {
 		this.playButtonText.set(playButtonText);
+	}
+
+	public boolean isCountTimeCalled() {
+		return countTimeCalled;
+	}
+
+	public void setCountTimeCalled(boolean bool) {
+		this.countTimeCalled = bool;
 	}
 }

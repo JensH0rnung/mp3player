@@ -15,7 +15,9 @@ import java.util.HashMap;
  * Startet die Anwendung
  */
 public class App extends Application {
+
     private Stage primaryStage;
+    private Pane root;
 
     private HashMap<String, Pane> primaryViews;
 
@@ -49,7 +51,7 @@ public class App extends Application {
         this.primaryStage = primaryStage; // Window
 
         // Standard-View
-        Pane root = primaryViews.get("PlayerView");
+        root = primaryViews.get("PlayerView");
 
         Scene scene = new Scene(root, 475, 650);
         /*
@@ -82,18 +84,21 @@ public class App extends Application {
         if (nextView != null) {
             currentScene.setRoot(nextView);
         }
+        root = nextView;
     }
 
     public Stage getPrimaryStage() {
         return this.primaryStage;
     }
 
+    public Pane getRoot() {
+        return this.root;
+    }
+
     /**
      * Launch für GUI
      */
     public static void main(String[] args) {
-//        KeyboardController keyboardController = new KeyboardController();
-//        keyboardController.start();
         launch(args);
     }
 }

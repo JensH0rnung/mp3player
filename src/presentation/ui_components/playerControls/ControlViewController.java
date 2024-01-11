@@ -19,17 +19,6 @@ public class ControlViewController implements EventHandler<ActionEvent> {
     private VBox root;
     private MP3Player player;
 
-//    @FXML
-//    Button shuffleButton;
-//    @FXML
-//    Button skipBackButton;
-//    @FXML
-//    Button playButton;
-//    @FXML
-//    Button skipButton;
-//    @FXML
-//    Button repeatButton;
-
     public ControlViewController(MP3Player player) {
 
         this.player = player;
@@ -80,10 +69,12 @@ public class ControlViewController implements EventHandler<ActionEvent> {
                 } else if (!player.isPlaying()) {
                     player.play();
                     player.playButtonTextProperty().set("Pause");
+                    player.countTime();
                 }
                 break;
             case "skipButton":
                 player.skip();
+                player.playButtonTextProperty().set("Pause");
                 break;
             case "repeatButton":
                 player.repeat();

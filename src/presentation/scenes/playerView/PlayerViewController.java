@@ -41,8 +41,6 @@ public class PlayerViewController {
     Button playButton;
     Button skipButton;
     Button repeatButton;
-    // Test
-    Button testSkip;
 
     Button muteButton;
     Slider volumeSlider;
@@ -82,8 +80,6 @@ public class PlayerViewController {
         playButton = root.playButton;
         skipButton = root.skipButton;
         repeatButton = root.repeatButton;
-        // test
-        testSkip = root.testSkip;
 
         muteButton = root.muteButton;
         volumeSlider = root.volumeSlider;
@@ -130,8 +126,6 @@ public class PlayerViewController {
         playButton.setOnAction(controlViewController);
         skipButton.setOnAction(controlViewController);
         repeatButton.setOnAction(controlViewController);
-        // Test
-        testSkip.setOnAction(controlViewController);
 
         shuffleButton.styleProperty().bind(player.shuffleStyleProperty());
         shuffleButton.styleProperty().addListener(

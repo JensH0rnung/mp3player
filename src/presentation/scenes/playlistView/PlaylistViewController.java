@@ -5,7 +5,6 @@ import business_logic.data.Playlist;
 import business_logic.data.Song;
 import business_logic.services.MP3Player;
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
@@ -25,6 +24,8 @@ public class PlaylistViewController {
     private MP3Player player;
     private Playlist actPlaylist;
     private ArrayList<Song> songsInPlaylist;
+
+    private boolean countTimeCalled;
 
     private ControlViewController controlViewController;
     private ViewChangeController viewChangeController;
@@ -73,6 +74,7 @@ public class PlaylistViewController {
         this.player = player;
         this.actPlaylist = player.getActPlaylist();
         this.songsInPlaylist = actPlaylist.getSongs();
+        this.countTimeCalled = false;
 
         controlViewController = new ControlViewController(player);
         viewChangeController = new ViewChangeController(app);
@@ -152,8 +154,14 @@ public class PlaylistViewController {
 
                         player.incActPositionInPlayedSongs();
                         player.play(selectedSongFilePath);
-                        System.out.println("Start CountTime from listView");
-                        player.countTime();
+                        if(player.playButtonTextProperty().get().equals("Play")) {
+                            player.playButtonTextProperty().set("Pause");
+                        }
+                        // Einmaliger Aufruf
+                        if(!player.isCountTimeCalled()){
+                            System.out.println("Start CountTime from listView");
+                            player.countTime();
+                        }
                     }
                 })
         );
