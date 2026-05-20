@@ -32,7 +32,7 @@ Nun kann der User entscheiden, ob er einen zufälligen Song spielen möchte (Pla
 - Trennung der Style-Informationen von Programm-Code
 - skalierbares Layout
 
-## Geplante Features
+## Potenzielle Erweiterungen
 
 - mehrere Playlists erstellen & auswählen
 - Animationen einfügen
